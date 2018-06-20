@@ -1,10 +1,14 @@
 import { createSelector } from 'reselect'
 import {
   ABILITIES, CLASSES, FEATS,
+  STR, DEX, INT, WIS, CHA,
   asiLevelsForClass
 } from '../constants'
 
+const classKeys = Object.keys(CLASSES)
+
 const allFeatsSelector = () => FEATS
+const allClassesSelector = () => classKeys
 
 const classProgressionSelector = state => state.classProgression
 const raceSelector = state => state.race
@@ -270,5 +274,65 @@ export const collapsedLevelsSelector = createSelector(
     })
 
     return anchorLevels
+  }
+)
+
+function abilityScoresValidForMulticlass(a, _class) {
+  switch (_class) {
+    case 'barbarian':
+    return a[STR] >= 13
+
+    case 'bard':
+    case 'sorcerer':
+    case 'warlock':
+    return a[CHA] >= 13
+
+    case 'cleric':
+    case 'druid':
+    return a[WIS] >= 13
+
+    case 'fighter':
+    return a[DEX] >= 13 || a[STR] >= 13
+
+    case 'monk':
+    case 'ranger':
+    return a[DEX] >= 13 && a[WIS] >= 13
+
+    case 'paladin':
+    return a[STR] >= 13 && a[CHA] >= 13
+
+    case 'rogue':
+    return a[DEX] >= 13
+
+    case 'wizard':
+    return a[INT] >= 13
+
+    default:
+    return false
+  }
+}
+
+export const availableClassesSelector = createSelector(
+  allClassesSelector,
+  levelAbilityScoresSelector,
+  classLevelsSelector,
+  (allClasses, levelAbilityScores, classLevels) => {
+    const availableClasses = {}
+
+    classLevels.forEach(level => {
+      const { characterLevel } = level
+      const currentAbilityScores = levelAbilityScores[characterLevel]
+      const currentClass = level.class
+
+      if (abilityScoresValidForMulticlass(currentAbilityScores, currentClass)) {
+        availableClasses[characterLevel] = allClasses.filter(
+          c => abilityScoresValidForMulticlass(currentAbilityScores, c)
+        )
+      } else {
+        availableClasses[characterLevel] = [currentClass]
+      }
+    })
+
+    return availableClasses
   }
 )

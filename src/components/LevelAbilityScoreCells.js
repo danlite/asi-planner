@@ -1,5 +1,5 @@
-import React, { Component, Fragment } from 'react'
-import { ABILITIES, scoreModifier, formatModifier } from '../constants'
+import React, { Component } from 'react'
+import { ABILITIES } from '../constants'
 
 class LevelAbilityScoreCells extends Component {
   render() {

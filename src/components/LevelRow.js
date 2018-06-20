@@ -8,6 +8,7 @@ import {
   availableFeatsSelector,
   collapsedLevelsSelector,
   collapsibleLevelsSelector,
+  availableClassesSelector,
 } from '../selectors'
 import ASICells from './ASICells'
 import LevelAbilityScoreCells from './LevelAbilityScoreCells'
@@ -20,7 +21,8 @@ const mapStateToProps = (state, ownProps) => {
         collapsibleAnchorLevel: collapsibleLevelsSelector(state)[ownProps.level.characterLevel],
         availableFeats: availableFeatsSelector(state),
         abilityScores: levelAbilityScoresSelector(state)[ownProps.level.characterLevel],
-        availableAbilities: feature ? featureAvailableAbilitiesSelector(feature) : {}
+        availableAbilities: feature ? featureAvailableAbilitiesSelector(feature) : {},
+        availableClasses: availableClassesSelector(state)[ownProps.level.characterLevel],
     }
 }
 
@@ -71,6 +73,7 @@ class LevelRow extends Component {
       availableAbilities,
       level,
       availableFeats,
+      availableClasses,
       abilityScores,
       collapsedLevels,
       collapsibleAnchorLevel,
@@ -102,7 +105,7 @@ class LevelRow extends Component {
         </td>
         <td>
           <select value={level.class} onChange={handleClassChange}>
-            {Object.keys(CLASSES).map(c => <option key={c} value={c}>{CLASSES[c]}</option>)}
+            {availableClasses.map(c => <option key={c} value={c}>{CLASSES[c]}</option>)}
           </select>
         </td>
         <td>{level.asi || level.feat ?
