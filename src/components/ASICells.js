@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { ABILITIES } from '../constants'
+import { ABILITIES, formatModifier } from '../constants'
 
 class ASICells extends Component {
     render() {
@@ -8,14 +8,14 @@ class ASICells extends Component {
             {ABILITIES.map(a => <td key={a}>
                 {feature ?
                     feature.asi[a] ?
-                        feature.asi[a] :
+                        formatModifier(feature.asi[a]) :
                         (availableAbilities && availableAbilities[a].length) ?
                             <select value={feature.selectedAbilities[a] || ''}
                                     onChange={e => handleAbilityChange(e, a)}>
                                 <option value=''></option>
                                 {availableAbilities && availableAbilities[a].map(increase =>
                                     <option value={increase} key={increase}>
-                                        {increase}
+                                        {formatModifier(increase)}
                                     </option>
                                 )}
                             </select> :

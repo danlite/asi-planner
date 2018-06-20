@@ -26,3 +26,31 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+select {
+  font-family: sans-serif;
+}
+
+td.visible-on-row-hover {
+  display: none;
+}
+
+tr:hover td.visible-on-row-hover {
+  display: table-cell;
+}
+
+.App.compact .collapsible {
+  display: none;
+}
+
+.App:not(.compact) .collapsed {
+  display: none;
+}
+
+.App, .App select, .App input, .App button {
+  font-size: 0.9em;
+}
+
+.App td select {
+  width: 100%;
+}

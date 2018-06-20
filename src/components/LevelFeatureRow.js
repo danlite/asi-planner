@@ -1,12 +1,13 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import ASICells from './ASICells'
-import { ABILITIES, FEATS } from '../constants'
+import { FEATS } from '../constants'
 import { SELECT_FEAT, SELECT_ASI, SELECT_LEVEL_FEATURE_ABILITY } from '../actions'
-import { getAvailableAbilities } from '../reducers'
+import { featureAvailableAbilitiesSelector } from '../selectors'
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, ownProps) => {
   return {
+    availableAbilities: featureAvailableAbilitiesSelector(ownProps.feature)
   }
 }
 
@@ -38,6 +39,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
   }
 }
 
+/*
 function getAvailableASIs(feature) {
   const MAX = 2
   const asi = feature.asi
@@ -57,11 +59,11 @@ function getAvailableASIs(feature) {
 
   return available
 }
+*/
 
 class LevelFeatureRow extends Component {
   render() {
-    const { feature, handleAbilityChange } = this.props
-    const availableAbilities = getAvailableAbilities(feature.asi, feature.selectedAbilities)
+    const { feature, availableAbilities, handleAbilityChange } = this.props
 
     return (
       <tr className='LevelFeatureRow'>

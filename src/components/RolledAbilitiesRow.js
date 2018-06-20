@@ -22,7 +22,7 @@ const mapDispatchToProps = dispatch => {
             dispatch({
                 type: SET_ROLLED_ABILITY,
                 key: ability,
-                value: Math.max(3, Math.min(18, value)),
+                value: value,
             })
         }
     }
@@ -32,7 +32,7 @@ class RolledAbilitiesRow extends Component {
   render() {
     return (
       <tr className="RolledAbilitiesRow">
-        <td colSpan={2}>
+        <td colSpan={3}>
             Rolled ability scores:
         </td>
         {ABILITIES.map(a => <td key={a}>

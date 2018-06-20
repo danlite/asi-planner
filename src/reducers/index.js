@@ -1,13 +1,13 @@
-import { combineReducers } from 'redux'
+// import { combineReducers } from 'redux'
 import {
     STR, DEX, CON, INT, WIS, CHA,
-    ABILITIES, RACES, CLASSES,
-    asiLevelsForClass,
+    RACES, MAX_LEVEL_COUNT,
 } from '../constants'
 import {
     SET_ROLLED_ABILITY,
     SET_RACE,
     SELECT_RACE_ABILITY,
+    REMOVE_LEVEL_FEATURE,
     ADD_LEVEL_FEATURE,
     SELECT_LEVEL_FEATURE_ABILITY,
     SELECT_FEAT,
@@ -15,6 +15,7 @@ import {
     SET_CHARACTER_LEVEL_CLASS,
     RESET_CHARACTER_CLASS,
 } from '../actions'
+import { classLevelsSelector } from '../selectors'
 
 const INITIAL_ROLLED_ABILITIES = {
     [STR]: 10,
@@ -25,114 +26,41 @@ const INITIAL_ROLLED_ABILITIES = {
     [CHA]: 10
 }
 
-const INITIAL_CLASS_PROGRESSION = new Array(20)
+const INITIAL_CLASS_PROGRESSION = new Array(MAX_LEVEL_COUNT)
 
 function classProgression(state = INITIAL_CLASS_PROGRESSION, action) {
     switch (action.type) {
         case SET_CHARACTER_LEVEL_CLASS:
-        if (action.level >= 20 || action.level < 0)
+        const index = action.level - 1
+        if (index >= MAX_LEVEL_COUNT || index < 0)
             return state
 
+        // If changing this level splits up
+        // var latestLevel = index
+        // var latestClass = null
+        // do {
+        //     latestClass = state[latestLevel]
+        //     latestLevel -= 1
+        // } while (latestLevel > 0 && !latestClass)
+        // if (latestClass) {
+
+        // }
+
         return [
-            ...state.slice(0, action.level),
+            ...state.slice(0, index),
             action.class,
-            ...state.slice(action.level + 1)
+            ...state.slice(index + 1)
         ]
 
         case RESET_CHARACTER_CLASS:
-        return [
-            action.class,
-            ...INITIAL_CLASS_PROGRESSION.slice(1)
-        ]
+        state = []
+        for (var i = 0; i < MAX_LEVEL_COUNT; i++)
+            state.push(action.class)
+        return state
 
         default:
         return state
     }
-}
-
-/*
-    Pass in a sparse array of class keys and it will return/print
-    a representation containing the chosen classes at each level
-    and whether that level grants an ASI.
-    Pass in an appropriate race and it will mark first level as
-    granting a feat (i.e. in the case of the variant human).
-
-    For example, this:
-
-    displayClassProgression([
-        'wizard',
-        undefined,
-        undefined,
-        'fighter',
-        'wizard',
-        undefined,
-        'fighter',
-        undefined,
-        undefined
-    ], { feat: true })
-
-    will print:
-
-    Wizard 1 [F]
-    Wizard 2
-    Wizard 3
-    Wizard 3 / Fighter 1 (4)
-    Wizard 4 / Fighter 1 (5) [ASI]
-    Wizard 5 / Fighter 1 (6)
-    Wizard 5 / Fighter 2 (7)
-    Wizard 5 / Fighter 3 (8)
-    Wizard 5 / Fighter 4 (9) [ASI]
-*/
-export function displayClassProgression(classProgression, race) {
-    const currentClasses = {}
-    const classesNextAsiLevelIndex = {}
-    const levels = []
-    var latestClass
-    var characterLevel = 0
-    const hasRacialFeat = !!(race && race.feat)
-
-    classProgression.forEach(_class => {
-        if (!_class) {
-            _class = latestClass
-        }
-
-        characterLevel++
-
-        var asi = false
-        var classLevel = currentClasses[_class]
-        if (typeof classLevel === 'undefined')
-            classLevel = 0
-        classLevel++
-        currentClasses[_class] = classLevel
-
-        const asiLevels = asiLevelsForClass(_class)
-        var nextAsiLevelIndex = classesNextAsiLevelIndex[_class] || 0
-        const nextAsiLevel = asiLevels[nextAsiLevelIndex]
-        if (nextAsiLevel === classLevel) {
-            asi = true
-            classesNextAsiLevelIndex[_class] = ++nextAsiLevelIndex
-        }
-
-        levels.push({
-            'characterLevel': characterLevel,
-            'feat': hasRacialFeat && (characterLevel === 1),
-            'asi': asi,
-            'classes': {...currentClasses}
-        })
-        latestClass = _class
-    })
-
-    console.log(levels.map(level => {
-        const classKeys = Object.keys(level.classes)
-        return classKeys.map(_class => {
-            return `${CLASSES[_class]} ${level.classes[_class]}`
-        }).join(' / ') +
-        (classKeys.length > 1 ? ` (${level.characterLevel})` : '') +
-        (level.asi ? ' [ASI]' : '') +
-        (level.feat ? ' [F]' : '')
-    }).join('\n'))
-
-    return levels
 }
 
 function rolledAbilities(state = INITIAL_ROLLED_ABILITIES, action) {
@@ -144,7 +72,7 @@ function rolledAbilities(state = INITIAL_ROLLED_ABILITIES, action) {
     }
 }
 
-function levelFeature(state = {}, action) {
+function levelFeature(state = null, action) {
     switch (action.type) {
         case ADD_LEVEL_FEATURE:
         case SELECT_ASI:
@@ -161,7 +89,7 @@ function levelFeature(state = {}, action) {
             ...state,
             selectedAbilities: {
                 ...state.selectedAbilities,
-                [action.key]: action.value
+                [action.key]: parseInt(action.value, 10)
             }
         }
 
@@ -172,11 +100,16 @@ function levelFeature(state = {}, action) {
             selectedAbilities: {},
         }
 
+        case REMOVE_LEVEL_FEATURE:
+        return null
+
         default:
         return state
     }
 }
 
+/*
+// old array-style levelFeatures reducer
 function levelFeatures(state = [], action) {
     switch (action.type) {
         case ADD_LEVEL_FEATURE:
@@ -196,79 +129,53 @@ function levelFeatures(state = [], action) {
         return state
     }
 }
+*/
 
-export function getAvailableAbilities(asi, selectedAbilities) {
-    const otherPool = (typeof asi.other === 'number')
-    const otherSingleChoice = (asi.other && asi.other.__proto__ === [].__proto__)
+function levelFeatures(state = {}, action, classLevels = []) {
+    const { level } = action
 
-    var other = null
-    if (otherPool)
-        other = asi.other
-    else if (otherSingleChoice)
-        other = asi.other
-    else
-        other = { ...asi.other }
-
-    if (!other)
-        return {}
-
-    var totalSelected = 0
-    Object.keys(selectedAbilities).forEach(ability => {
-        const increase = selectedAbilities[ability]
-        if (!increase)
-            return
-
-        totalSelected += increase
-
-        if (otherPool)
-            other -= increase
-        else if (otherSingleChoice)
-            other = []
-        else
-            other[increase] -= 1
-    })
-
-    const available = {}
-
-    ABILITIES.forEach(a => {
-        const set = new Set()
-
-        if (!asi[a]) {
-            const selectedIncrease = selectedAbilities[a]
-
-            if (otherPool) {
-                var max = other
-                if (selectedIncrease)
-                    max = Math.max(max, selectedIncrease)
-
-                for (var i = max; i > 0; i--) {
-                    set.add(i)
-                }
-            } else if (otherSingleChoice) {
-                if (other.includes(a)) {
-                    set.add(1)
-                }
-
-                if (selectedIncrease)
-                    set.add(1)
-            } else {
-                Object.keys(other).forEach(increase => {
-                    const count = other[increase]
-                    if (count <= 0)
-                        return
-
-                    set.add(increase)
-                })
-
-                if (selectedIncrease)
-                    set.add(selectedIncrease)
-            }
+    switch (action.type) {
+        case SELECT_LEVEL_FEATURE_ABILITY:
+        case SELECT_FEAT:
+        case SELECT_ASI:
+        return {
+            ...state,
+            [level]: levelFeature(state[level], action)
         }
 
-        available[a] = Array.from(set)
-    })
+        case REMOVE_LEVEL_FEATURE:
+        state = { ...state }
+        delete state[level]
+        return state
 
-    return available
+        /*
+            Since changing the class for a given character level,
+            or changing the race (away from variant human) can
+            change the available features for that level, here we
+            remove any feature for a level that no longer has the
+            option for a feature.
+        */
+        case SET_RACE:
+        case SET_CHARACTER_LEVEL_CLASS:
+        case RESET_CHARACTER_CLASS:
+        state = { ...state }
+        classLevels.forEach(level => {
+            const { characterLevel } = level
+            const feature = state[characterLevel]
+            if (!feature)
+                return
+
+            if (feature.type === 'asi' && !level.asi)
+                delete state[characterLevel]
+
+            if (feature.type === 'feat' && !level.feat)
+                delete state[characterLevel]
+        })
+        return state
+
+        default:
+        return state
+    }
 }
 
 function race(state = null, action) {
@@ -284,7 +191,7 @@ function race(state = null, action) {
             ...state,
             selectedAbilities: {
                 ...state.selectedAbilities,
-                [action.key]: action.value
+                [action.key]: parseInt(action.value, 10)
             },
         }
         default:
@@ -292,10 +199,24 @@ function race(state = null, action) {
     }
 }
 
-const plannerApp = combineReducers({
-    rolledAbilities,
-    race,
-    levelFeatures,
-})
+function plannerApp(state = {}, action) {
+    const newState = {
+        rolledAbilities: rolledAbilities(state.rolledAbilities, action),
+        race: race(state.race, action),
+        classProgression: classProgression(state.classProgression, action),
+    }
+
+    const classLevels = classLevelsSelector(newState)
+    newState.levelFeatures = levelFeatures(state.levelFeatures, action, classLevels)
+
+    return newState
+}
+
+// const plannerApp = combineReducers({
+//     rolledAbilities,
+//     race,
+//     classProgression,
+//     levelFeatures,
+// })
 
 export default plannerApp

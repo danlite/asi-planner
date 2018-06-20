@@ -1,17 +1,18 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { ABILITIES, RACES } from '../constants'
+import { GROUPED_RACES } from '../constants'
 import {
     SET_RACE,
     SELECT_RACE_ABILITY,
-    SET_CHARACTER_LEVEL_CLASS,
 } from '../actions'
-import { getAvailableAbilities } from '../reducers'
+import { featureAvailableAbilitiesSelector } from '../selectors'
 import ASICells from './ASICells'
 
 const mapStateToProps = state => {
+    const race = state.race
     return {
-        race: state.race,
+        race,
+        availableAbilities: race ? featureAvailableAbilitiesSelector(race) : {}
     }
 }
 
@@ -37,21 +38,29 @@ const mapDispatchToProps = dispatch => {
 
 class RaceRow extends Component {
   render() {
-    const { race, handleAbilityChange } = this.props
-    const availableAbilities = race ?
-        getAvailableAbilities(race.asi, race.selectedAbilities) :
-        null
+    const { race, availableAbilities, handleAbilityChange } = this.props
 
     return (
       <tr className="RaceRow">
-        <td>Race:</td>
-        <td>
+        <td/>
+        <td colSpan={2}>
             <select value={race ? race.id : ''}
-                    onChange={this.props.handleRaceChange}>
-                <option value=""></option>
-                {RACES.map(r => <option value={r.id} key={r.id}>
-                    {r.name}
-                </option>)}
+                    onChange={this.props.handleRaceChange}
+                    style={{ fontStyle: race ? 'normal' : 'italic' }}
+            >
+                <option value='' disabled>Choose race:</option>
+                {GROUPED_RACES.map(group => {
+                    if (Array.isArray(group.races)) {
+                        return <optgroup label={group.familyName} key={group.familyName}>
+                            {group.races.map(r => <option value={r.id} key={r.id}>{r.name}</option>)}
+                        </optgroup>
+                    } else {
+                        const race = group.races
+                        return <option value={race.id} key={race.id}>
+                            {race.name}
+                        </option>
+                    }
+                })}
             </select>
         </td>
         <ASICells {...{ feature: race, availableAbilities, handleAbilityChange }} />
