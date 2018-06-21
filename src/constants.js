@@ -76,6 +76,7 @@ export const RACES = [
         id: 'gnome-deep',
         name: 'Gnome (deep)',
         family: 'Gnome',
+        size: 'small',
         asi: {
             [INT]: 2,
             [DEX]: 1,
@@ -404,6 +405,7 @@ export const RACES = [
         id: 'gnome-rock',
         name: 'Gnome (rock)',
         family: 'Gnome',
+        size: 'small',
         asi: {
             [INT]: 2,
             [CON]: 1
@@ -413,6 +415,7 @@ export const RACES = [
         id: 'gnome-forest',
         name: 'Gnome (forest)',
         family: 'Gnome',
+        size: 'small',
         asi: {
             [INT]: 2,
             [DEX]: 1
@@ -421,6 +424,7 @@ export const RACES = [
     {
         id: 'goblin',
         name: 'Goblin',
+        size: 'small',
         asi: {
             [DEX]: 2,
             [CON]: 1
@@ -438,6 +442,7 @@ export const RACES = [
         id: 'halfing-stout',
         name: 'Halfling (stout)',
         family: 'Halfling',
+        size: 'small',
         asi: {
             [DEX]: 2,
             [CON]: 1
@@ -447,6 +452,7 @@ export const RACES = [
         id: 'halfling-lightfoot',
         name: 'Halfling (lightfoot)',
         family: 'Halfling',
+        size: 'small',
         asi: {
             [DEX]: 2,
             [CHA]: 1
@@ -456,6 +462,7 @@ export const RACES = [
         id: 'halfling-ghostwise',
         name: 'Halfling (ghostwise)',
         family: 'Halfling',
+        size: 'small',
         asi: {
             [DEX]: 2,
             [WIS]: 1
@@ -501,6 +508,7 @@ export const RACES = [
     {
         id: 'kobold',
         name: 'Kobold',
+        size: 'small',
         asi: {
             [DEX]: 2,
             [STR]: -2
@@ -577,12 +585,49 @@ export const GROUPED_RACES = Object.keys(raceFamilies).sort().map(raceFamilyKey 
     }
 })
 
+export function featMeetsPrerequisite(featId, characterState) {
+    const { race, level, abilityScores } = characterState
+    switch (featId) {
+        case 'dragon-fear':
+        case 'dragon-hide':
+        return race.id === 'dragonborn'
+
+        case 'elven-accuracy':
+        return race.family === 'Elf' || race.id === 'half-elf'
+
+        case 'flames-phlegethos':
+        case 'infernal-constitution':
+        return race.family === 'Tiefling'
+
+        case 'orcish-fury':
+        return race.id === 'half-orc'
+
+        case 'fey-teleportation':
+        return race.id === 'elf-high'
+
+        case 'second-chance':
+        return race.family === 'Halfling'
+
+        case 'squat-nimbleness':
+        return race.family === 'Dwarf' || race.size === 'small'
+
+        case 'dwarven-fortitude':
+        return race.family === 'Dwarf'
+
+        case 'fade-away':
+        return race.family === 'Gnome'
+
+        default:
+        return true
+    }
+}
+
 export const FEATS = [
     {
         id: 'actor',
         name: 'Actor',
         asi: {
-            [INT]: 1
+            [CHA]: 1
         }
     },
     {
@@ -732,4 +777,18 @@ export const FEATS = [
             'other': [DEX, INT]
         }
     },
+    {
+        id: 'dwarven-fortitude',
+        name: 'Dwarven Fortitude',
+        asi: {
+            [CON]: 1
+        }
+    },
+    {
+        id: 'fey-teleportation',
+        name: 'Fey Teleportation',
+        asi: {
+            'other': [INT, CHA]
+        }
+    }
 ].sort((a, b) => a.name.localeCompare(b.name))

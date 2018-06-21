@@ -2,7 +2,7 @@ import { createSelector } from 'reselect'
 import {
   ABILITIES, CLASSES, FEATS,
   STR, DEX, INT, WIS, CHA,
-  asiLevelsForClass
+  asiLevelsForClass, featMeetsPrerequisite,
 } from '../constants'
 
 const classKeys = Object.keys(CLASSES)
@@ -191,9 +191,12 @@ const chosenFeatsSelector = createSelector(
 export const availableFeatsSelector = createSelector(
   allFeatsSelector,
   chosenFeatsSelector,
-  (allFeats, chosenFeats) => {
+  raceSelector,
+  (allFeats, chosenFeats, race) => {
     const chosenFeatIds = chosenFeats.map(f => f.id)
-    return allFeats.filter(f => !chosenFeatIds.includes(f.id))
+    return allFeats.filter(f => {
+      return featMeetsPrerequisite(f.id, { race }) && !chosenFeatIds.includes(f.id)
+    })
   }
 )
 
