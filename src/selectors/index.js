@@ -324,12 +324,17 @@ export const availableClassesSelector = createSelector(
 
     classLevels.forEach(level => {
       const { characterLevel } = level
-      const currentAbilityScores = levelAbilityScores[characterLevel]
+      const priorAbilityScores = levelAbilityScores[characterLevel - 1]
       const currentClass = level.class
 
-      if (abilityScoresValidForMulticlass(currentAbilityScores, currentClass)) {
+      if (characterLevel === 1) {
+        availableClasses[characterLevel] = allClasses
+        return
+      }
+
+      if (abilityScoresValidForMulticlass(priorAbilityScores, currentClass)) {
         availableClasses[characterLevel] = allClasses.filter(
-          c => abilityScoresValidForMulticlass(currentAbilityScores, c)
+          c => abilityScoresValidForMulticlass(priorAbilityScores, c)
         )
       } else {
         availableClasses[characterLevel] = [currentClass]
