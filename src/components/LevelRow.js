@@ -105,7 +105,9 @@ class LevelRow extends Component {
         </td>
         <td>
           <select value={level.class} onChange={handleClassChange}>
-            {availableClasses.map(c => <option key={c} value={c}>{CLASSES[c]}</option>)}
+            {Object.keys(CLASSES).map(c => <option key={c} value={c} disabled={!availableClasses.includes(c)}>
+              {CLASSES[c]}
+            </option>)}
           </select>
         </td>
         <td>{level.asi || level.feat ?
