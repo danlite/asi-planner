@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { CLASSES, FEATS, CLASS_COLORS } from '../constants'
+import { CLASSES, FEATS } from '../constants'
 import { SELECT_LEVEL_FEATURE_ABILITY, SELECT_FEAT, SELECT_ASI, REMOVE_LEVEL_FEATURE, SET_CHARACTER_LEVEL_CLASS } from '../actions'
 import {
   featureAvailableAbilitiesSelector,
@@ -19,7 +19,7 @@ const mapStateToProps = (state, ownProps) => {
         feature,
         collapsedLevels: collapsedLevelsSelector(state)[ownProps.level.characterLevel],
         collapsibleAnchorLevel: collapsibleLevelsSelector(state)[ownProps.level.characterLevel],
-        availableFeats: availableFeatsSelector(state),
+        availableFeats: availableFeatsSelector(state)[ownProps.level.characterLevel],
         abilityScores: levelAbilityScoresSelector(state)[ownProps.level.characterLevel],
         availableAbilities: feature ? featureAvailableAbilitiesSelector(feature) : {},
         availableClasses: availableClassesSelector(state)[ownProps.level.characterLevel],
@@ -94,9 +94,9 @@ class LevelRow extends Component {
 
     return (
       <tr className={['LevelRow', collapsibleAnchorLevel ? 'collapsible' : ''].join(' ')}>
-        <td style={{ color: 'white', backgroundColor: `#${CLASS_COLORS[level.class]}` }}
+        <td style={{ color: 'white', backgroundColor: `#${CLASSES[level.class].color}` }}
             title={
-              classKeys.map(_class => `${CLASSES[_class]} ${level.classes[_class]}`).join(' / ') +
+              classKeys.map(_class => `${CLASSES[_class].name} ${level.classes[_class]}`).join(' / ') +
               (classKeys.length > 1 ? ` (${level.characterLevel})` : '')
             }
         >
@@ -106,7 +106,7 @@ class LevelRow extends Component {
         <td>
           <select value={level.class} onChange={handleClassChange}>
             {Object.keys(CLASSES).map(c => <option key={c} value={c} disabled={!availableClasses.includes(c)}>
-              {CLASSES[c]}
+              {CLASSES[c].name}
             </option>)}
           </select>
         </td>

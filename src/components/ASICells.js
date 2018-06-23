@@ -6,7 +6,7 @@ class ASICells extends Component {
         const { feature, availableAbilities, handleAbilityChange } = this.props
         return <Fragment>
             {ABILITIES.map(a => <td key={a}>
-                {feature ?
+                {feature && feature.asi ?
                     feature.asi[a] ?
                         formatModifier(feature.asi[a]) :
                         (availableAbilities && availableAbilities[a].length) ?

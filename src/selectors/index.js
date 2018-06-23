@@ -15,7 +15,7 @@ const raceSelector = state => state.race
 const levelFeaturesSelector = state => state.levelFeatures
 const rolledAbilitiesSelector = state => state.rolledAbilities
 
-const featureAsiSelector = feature => feature.asi
+const featureAsiSelector = feature => feature.asi || {}
 const featureSelectedAbilitiesSelector = feature => feature.selectedAbilities
 
 export const classLevelsSelector = createSelector(
@@ -83,6 +83,7 @@ export const classLevelsSelector = createSelector(
         'characterLevel': characterLevel,
           'feat': (hasRacialFeat && (characterLevel === 1)) || asi, // optional ASI rule
           'asi': asi,
+          'capabilities': {},
           'class': _class,
           'classes': {...currentClasses}
         })
@@ -98,7 +99,7 @@ export function displayClassProgression(state) {
     levels.map(level => {
       const classKeys = Object.keys(level.classes)
       return classKeys.map(_class => {
-        return `${CLASSES[_class]} ${level.classes[_class]}`
+        return `${CLASSES[_class].name} ${level.classes[_class]}`
       }).join(' / ') +
       (classKeys.length > 1 ? ` (${level.characterLevel})` : '') +
       (level.asi ? ' [ASI]' : '') +
@@ -188,20 +189,8 @@ const chosenFeatsSelector = createSelector(
   levelFeatures => Object.values(levelFeatures).filter(f => f.type === 'feat')
 )
 
-export const availableFeatsSelector = createSelector(
-  allFeatsSelector,
-  chosenFeatsSelector,
-  raceSelector,
-  (allFeats, chosenFeats, race) => {
-    const chosenFeatIds = chosenFeats.map(f => f.id)
-    return allFeats.filter(f => {
-      return featMeetsPrerequisite(f.id, { race }) && !chosenFeatIds.includes(f.id)
-    })
-  }
-)
-
 const abilityScoreImprovementsFromFeature = (ability, feature) =>
-  (feature.asi[ability] || 0) + (feature.selectedAbilities[ability] || 0)
+  feature.asi ? (feature.asi[ability] || 0) + (feature.selectedAbilities[ability] || 0) : 0
 
 export const startingAbilityScoresSelector = createSelector(
   rolledAbilitiesSelector,
@@ -342,5 +331,57 @@ export const availableClassesSelector = createSelector(
     })
 
     return availableClasses
+  }
+)
+
+export const levelCapabilitiesSelector = createSelector(
+  raceSelector,
+  classLevelsSelector,
+  levelFeaturesSelector,
+  (race, classLevels, levelFeatures) => {
+    var currentCapabilities = { ...race.capabilities }
+    const levelCapabilities = {}
+
+    classLevels.forEach(level => {
+      const abilities = { ...currentCapabilities }
+
+      levelCapabilities[level.characterLevel] = abilities
+
+      currentCapabilities = { ...abilities }
+    })
+
+    return levelCapabilities
+  }
+)
+
+export const availableFeatsSelector = createSelector(
+  allFeatsSelector,
+  levelFeaturesSelector,
+  levelAbilityScoresSelector,
+  levelCapabilitiesSelector,
+  startingAbilityScoresSelector,
+  raceSelector,
+  classLevelsSelector,
+  (allFeats, levelFeatures, levelAbilityScores, levelCapabilities, startingAbilityScores, race, classLevels) => {
+    const chosenFeatIds = []
+    const availableFeats = {}
+
+    classLevels.forEach(level => {
+      const { characterLevel } = level
+      const firstLevel = characterLevel === 1
+
+      const abilityScores = firstLevel ? startingAbilityScores : levelAbilityScores[characterLevel - 1]
+      const feature = levelFeatures[characterLevel - 1]
+      const capabilities = firstLevel ? {} : levelCapabilities[characterLevel - 1]
+
+      if (feature && feature.type === 'feat')
+        chosenFeatIds.push(feature.id)
+
+      availableFeats[characterLevel] = allFeats.filter(f => {
+        return featMeetsPrerequisite(f.id, { race, abilityScores, capabilities }) && !chosenFeatIds.includes(f.id)
+      })
+    })
+
+    return availableFeats
   }
 )

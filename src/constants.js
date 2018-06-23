@@ -28,33 +28,192 @@ export function scoreModifier(score) {
 export const MAX_LEVEL_COUNT = 20
 
 export const CLASSES = {
-    'barbarian': 'Barbarian',
-    'bard': 'Bard',
-    'cleric': 'Cleric',
-    'druid': 'Druid',
-    'fighter': 'Fighter',
-    'monk': 'Monk',
-    'paladin': 'Paladin',
-    'ranger': 'Ranger',
-    'rogue': 'Rogue',
-    'sorcerer': 'Sorcerer',
-    'warlock': 'Warlock',
-    'wizard': 'Wizard',
-}
+    barbarian: {
+        name: 'Barbarian',
+        color: 'd87860',
+        capabilities: {
+            lightArmorProficiency: true,
+            mediumArmorProficiency: true,
+        },
+        subclassLevel: 3,
+        subclasses: {
+            ancestral: {
+                name: 'Path of the Ancestral [Guardian]',
+                capabilities: { 10: ['spellcasting'] },
+            },
+            battlerager: {
+                name: 'Path of the [Battlerager]',
+            },
+            berserker: {
+                name: 'Path of the [Berserker]',
+            },
+            storm: {
+                name: 'Path of the [Storm] Herald',
+            },
+            totem: {
+                name: 'Path of the [Totem] Warrior',
+                capabilities: { spellcasting: true },
+            },
+            zealot: {
+                name: 'Path of the [Zealot]',
+            },
+        },
+    },
+    bard: {
+        name: 'Bard',
+        color: 'a878a8',
+        capabilities: {
+            lightArmorProficiency: true,
+            spellcasting: true,
+        },
+        subclassLevel: 3,
+        subclasses: {
+            glamour: {
+                name: 'College of [Glamour]',
+            },
+            lore: {
+                name: 'College of [Lore]',
+            },
+            swords: {
+                name: 'College of [Swords]',
+                capabilities: { mediumArmorProficiency: true },
+            },
+            valor: {
+                name: 'College of [Valor]',
+                capabilities: { mediumArmorProficiency: true },
+            },
+            whispers: {
+                name: 'College of [Whispers]',
+            },
+        },
+    },
+    cleric: {
+        name: 'Cleric',
+        color: '909090',
+        capabilities: {
+            lightArmorProficiency: true,
+            mediumArmorProficiency: true,
+            heavyArmorProficiency: false, // 1st level: Forge / Life / Nature / Tempest / Order
+            spellcasting: true,
+        },
+        subclassLevel: 1,
+        subclasses: {
 
-export const CLASS_COLORS = {
-    'barbarian': 'd87860',
-    'bard': 'a878a8',
-    'cleric': '909090',
-    'druid': '909060',
-    'fighter': '604830',
-    'monk': '78c0d8',
-    'paladin': 'c0a860',
-    'ranger': '487860',
-    'rogue': '484848',
-    'sorcerer': 'c06060',
-    'warlock': '7848a8',
-    'wizard': '4878c0',
+        },
+    },
+    druid: {
+        name: 'Druid',
+        color: '909060',
+        capabilities: {
+            lightArmorProficiency: true,
+            mediumArmorProficiency: true,
+            spellcasting: true,
+        },
+        subclassLevel: 0,
+        subclasses: {
+
+        },
+    },
+    fighter: {
+        name: 'Fighter',
+        color: '604830',
+        capabilities: {
+            lightArmorProficiency: true,
+            mediumArmorProficiency: true,
+            heavyArmorProficiency: true,
+            spellcasting: false, // 3rd level: Eldritch Knight
+        },
+        subclassLevel: 0,
+        subclasses: {
+
+        },
+    },
+    monk: {
+        name: 'Monk',
+        color: '78c0d8',
+        capabilities: {
+            spellcasting: false, // 3rd level: Shadow(?) / Four Elements / Sun Soul(?)
+        },
+        subclassLevel: 0,
+        subclasses: {
+
+        },
+    },
+    paladin: {
+        name: 'Paladin',
+        color: 'c0a860',
+        capabilities: {
+            lightArmorProficiency: true,
+            mediumArmorProficiency: true,
+            heavyArmorProficiency: true,
+            spellcasting: false, // 2nd level
+        },
+        subclassLevel: 0,
+        subclasses: {
+
+        },
+    },
+    ranger: {
+        name: 'Ranger',
+        color: '487860',
+        capabilities: {
+            lightArmorProficiency: true,
+            mediumArmorProficiency: true,
+            spellcasting: false, // 2nd level
+        },
+        subclassLevel: 0,
+        subclasses: {
+
+        },
+    },
+    rogue: {
+        name: 'Rogue',
+        color: '484848',
+        capabilities: {
+            lightArmorProficiency: true,
+            spellcasting: false, // 3rd level: Arcane Trickster
+        },
+        subclassLevel: 0,
+        subclasses: {
+
+        },
+    },
+    sorcerer: {
+        name: 'Sorcerer',
+        color: 'c06060',
+        capabilities: {
+            spellcasting: true,
+        },
+        subclassLevel: 0,
+        subclasses: {
+
+        },
+    },
+    warlock: {
+        name: 'Warlock',
+        color: '7848a8',
+        capabilities: {
+            lightArmorProficiency: true,
+            mediumArmorProficiency: false, // 2nd level: Hexblade
+            spellcasting: true,
+        },
+        subclassLevel: 0,
+        subclasses: {
+
+        },
+    },
+    wizard: {
+        name: 'Wizard',
+        color: '4878c0',
+        capabilities: {
+            lightArmorProficiency: false, // 2nd level: Bladesinging / School of Invention
+            spellcasting: true,
+        },
+        subclassLevel: 0,
+        subclasses: {
+
+        },
+    },
 }
 
 export const CLASS_ASI_LEVELS = [4, 8, 12, 16, 19]
@@ -100,6 +259,40 @@ export const RACES = [
         }
     },
     {
+        id: 'half-elf-wood',
+        name: 'Half-elf (wood)',
+        asi: {
+            [CHA]: 2,
+            'other': { 1: 2 }
+        }
+    },
+    {
+        id: 'half-elf-high',
+        name: 'Half-elf (high)',
+        capabilities: { spellcasting: true },
+        asi: {
+            [CHA]: 2,
+            'other': { 1: 2 }
+        }
+    },
+    {
+        id: 'half-elf-drow',
+        name: 'Half-elf (drow)',
+        capabilities: { spellcasting: true },
+        asi: {
+            [CHA]: 2,
+            'other': { 1: 2 }
+        }
+    },
+    {
+        id: 'half-elf-aquatic',
+        name: 'Half-elf (aquatic)',
+        asi: {
+            [CHA]: 2,
+            'other': { 1: 2 }
+        }
+    },
+    {
         id: 'aarakocra',
         name: 'Aarakocra',
         asi: {
@@ -111,6 +304,7 @@ export const RACES = [
         id: 'aasimar-protector',
         name: 'Aasimar (protector)',
         family: 'Aasimar',
+        capabilities: { spellcasting: true },
         asi: {
             [CHA]: 2,
             [WIS]: 1
@@ -120,6 +314,7 @@ export const RACES = [
         id: 'aasimar-scourge',
         name: 'Aasimar (scourge)',
         family: 'Aasimar',
+        capabilities: { spellcasting: true },
         asi: {
             [CHA]: 2,
             [CON]: 1
@@ -129,6 +324,7 @@ export const RACES = [
         id: 'aasimar-fallen',
         name: 'Aasimar (fallen)',
         family: 'Aasimar',
+        capabilities: { spellcasting: true },
         asi: {
             [CHA]: 2,
             [STR]: 1
@@ -138,6 +334,7 @@ export const RACES = [
         id: 'aasimar-variant',
         name: 'Aasimar (variant)',
         family: 'Aasimar',
+        capabilities: { spellcasting: true },
         asi: {
             [CHA]: 2,
             [WIS]: 1
@@ -172,6 +369,10 @@ export const RACES = [
         id: 'dwarf-mountain',
         name: 'Dwarf (mountain)',
         family: 'Dwarf',
+        capabilities: {
+            lightArmorProficiency: true,
+            mediumArmorProficiency: true,
+        },
         asi: {
             [CON]: 2,
             [STR]: 1
@@ -181,6 +382,7 @@ export const RACES = [
         id: 'duergar',
         name: 'Duergar (gray dwarf)',
         family: 'Dwarf',
+        capabilities: { 3: ['spellcasting'] },
         asi: {
             [CON]: 2,
             [STR]: 1
@@ -190,6 +392,7 @@ export const RACES = [
         id: 'elf-high',
         name: 'Elf (high)',
         family: 'Elf',
+        capabilities: { spellcasting: true },
         asi: {
             [DEX]: 2,
             [INT]: 1
@@ -208,6 +411,7 @@ export const RACES = [
         id: 'drow',
         name: 'Drow (dark elf)',
         family: 'Elf',
+        capabilities: { spellcasting: true },
         asi: {
             [DEX]: 2,
             [CHA]: 1
@@ -217,6 +421,7 @@ export const RACES = [
         id: 'eladrin-variant',
         name: 'Eladrin (variant)',
         family: 'Elf',
+        capabilities: { spellcasting: true },
         asi: {
             [DEX]: 2,
             [INT]: 1
@@ -253,6 +458,7 @@ export const RACES = [
         id: 'tiefling-feral',
         name: 'Tiefling (feral)',
         family: 'Tiefling',
+        capabilities: { spellcasting: true },
         asi: {
             [DEX]: 2,
             [INT]: 1
@@ -262,6 +468,7 @@ export const RACES = [
         id: 'tiefling',
         name: 'Tiefling',
         family: 'Tiefling',
+        capabilities: { spellcasting: true },
         asi: {
             [CHA]: 2,
             [INT]: 1
@@ -271,6 +478,7 @@ export const RACES = [
         id: 'tiefling-baalzebul',
         name: 'Tiefling (Baalzebul)',
         family: 'Tiefling',
+        capabilities: { spellcasting: true },
         asi: {
             [CHA]: 2,
             [INT]: 1
@@ -280,6 +488,7 @@ export const RACES = [
         id: 'tiefling-dispater',
         name: 'Tiefling (Dispater)',
         family: 'Tiefling',
+        capabilities: { spellcasting: true },
         asi: {
             [CHA]: 2,
             [DEX]: 1
@@ -289,6 +498,7 @@ export const RACES = [
         id: 'tiefling-fierna',
         name: 'Tiefling (Fierna)',
         family: 'Tiefling',
+        capabilities: { spellcasting: true },
         asi: {
             [CHA]: 2,
             [WIS]: 1
@@ -298,6 +508,7 @@ export const RACES = [
         id: 'tiefling-glasya',
         name: 'Tiefling (Glasya)',
         family: 'Tiefling',
+        capabilities: { spellcasting: true },
         asi: {
             [CHA]: 2,
             [DEX]: 1
@@ -307,6 +518,7 @@ export const RACES = [
         id: 'tiefling-levistus',
         name: 'Tiefling (Levistus)',
         family: 'Tiefling',
+        capabilities: { spellcasting: true },
         asi: {
             [CHA]: 2,
             [CON]: 1
@@ -316,6 +528,7 @@ export const RACES = [
         id: 'tiefling-mammon',
         name: 'Tiefling (Mammon)',
         family: 'Tiefling',
+        capabilities: { spellcasting: true },
         asi: {
             [CHA]: 2,
             [INT]: 1
@@ -325,6 +538,7 @@ export const RACES = [
         id: 'tiefling-mephistopheles',
         name: 'Tiefling (Mephistopheles)',
         family: 'Tiefling',
+        capabilities: { spellcasting: true },
         asi: {
             [CHA]: 2,
             [INT]: 1
@@ -334,6 +548,7 @@ export const RACES = [
         id: 'tiefling-zariel',
         name: 'Tiefling (Zariel)',
         family: 'Tiefling',
+        capabilities: { spellcasting: true },
         asi: {
             [CHA]: 2,
             [STR]: 1
@@ -342,6 +557,7 @@ export const RACES = [
     {
         id: 'firbolg',
         name: 'Firbolg',
+        capabilities: { spellcasting: true },
         asi: {
             [WIS]: 2,
             [STR]: 1
@@ -351,6 +567,7 @@ export const RACES = [
         id: 'genasi-air',
         name: 'Genasi (air)',
         family: 'Genasi',
+        capabilities: { spellcasting: true },
         asi: {
             [CON]: 2,
             [DEX]: 1
@@ -360,6 +577,7 @@ export const RACES = [
         id: 'genasi-earth',
         name: 'Genasi (earth)',
         family: 'Genasi',
+        capabilities: { spellcasting: true },
         asi: {
             [CON]: 2,
             [STR]: 1
@@ -369,6 +587,7 @@ export const RACES = [
         id: 'genasi-fire',
         name: 'Genasi (fire)',
         family: 'Genasi',
+        capabilities: { spellcasting: true },
         asi: {
             [CON]: 2,
             [INT]: 1
@@ -378,6 +597,7 @@ export const RACES = [
         id: 'genasi-water',
         name: 'Genasi (water)',
         family: 'Genasi',
+        capabilities: { spellcasting: true },
         asi: {
             [CON]: 2,
             [WIS]: 1
@@ -387,6 +607,11 @@ export const RACES = [
         id: 'githyanki',
         name: 'Githyanki',
         family: 'Gith',
+        capabilities: {
+            lightArmorProficiency: true,
+            mediumArmorProficiency: true,
+            spellcasting: true
+        },
         asi: {
             [STR]: 2,
             [INT]: 1
@@ -396,6 +621,7 @@ export const RACES = [
         id: 'githzerai',
         name: 'Githzerai',
         family: 'Gith',
+        capabilities: { spellcasting: true },
         asi: {
             [WIS]: 2,
             [INT]: 1
@@ -416,6 +642,7 @@ export const RACES = [
         name: 'Gnome (forest)',
         family: 'Gnome',
         size: 'small',
+        capabilities: { spellcasting: true },
         asi: {
             [INT]: 2,
             [DEX]: 1
@@ -479,6 +706,7 @@ export const RACES = [
     {
         id: 'hobgoblin',
         name: 'Hobgoblin',
+        capabilities: { lightArmorProficiency: true },
         asi: {
             [CON]: 2,
             [INT]: 1
@@ -550,6 +778,7 @@ export const RACES = [
     {
         id: 'triton',
         name: 'Triton',
+        capabilities: { spellcasting: true },
         asi: {
             [STR]: 1,
             [CON]: 1,
@@ -559,6 +788,7 @@ export const RACES = [
     {
         id: 'yuan-ti',
         name: 'Yuan-ti Pureblood',
+        capabilities: { spellcasting: true },
         asi: {
             [CHA]: 2,
             [INT]: 1
@@ -586,14 +816,14 @@ export const GROUPED_RACES = Object.keys(raceFamilies).sort().map(raceFamilyKey 
 })
 
 export function featMeetsPrerequisite(featId, characterState) {
-    const { race, level, abilityScores } = characterState
+    const { race, abilityScores, capabilities } = characterState
     switch (featId) {
         case 'dragon-fear':
         case 'dragon-hide':
         return race.id === 'dragonborn'
 
         case 'elven-accuracy':
-        return race.family === 'Elf' || race.id === 'half-elf'
+        return race.family === 'Elf' || race.family === 'Half-elf'
 
         case 'flames-phlegethos':
         case 'infernal-constitution':
@@ -606,6 +836,7 @@ export function featMeetsPrerequisite(featId, characterState) {
         return race.id === 'elf-high'
 
         case 'second-chance':
+        case 'bountiful-luck':
         return race.family === 'Halfling'
 
         case 'squat-nimbleness':
@@ -617,6 +848,48 @@ export function featMeetsPrerequisite(featId, characterState) {
         case 'fade-away':
         return race.family === 'Gnome'
 
+        case 'drow-high-magic':
+        return race.id === 'drow'
+
+        case 'svirfneblin-magic':
+        return race.id === 'gnome-deep'
+
+        case 'wood-elf-magic':
+        return race.id === 'elf-wood'
+
+        case 'prodigy':
+        return race.family === 'Human' || race.family === 'Half-elf' || race.id === 'half-orc'
+
+        case 'defensive-duelist':
+        return abilityScores[DEX] >= 13
+
+        case 'grappler':
+        return abilityScores[STR] >= 13
+
+        case 'inspiring-leader':
+        return abilityScores[CHA] >= 13
+
+        case 'skulker':
+        return abilityScores[DEX] >= 13
+
+        case 'ritual-caster':
+        return abilityScores[INT] >= 13 || abilityScores[WIS] >= 13
+
+        case 'elemental-adept':
+        case 'spell-sniper':
+        case 'war-caster':
+        return !!capabilities.spellcasting
+
+        case 'moderately-armored':
+        return !!capabilities.lightArmorProficiency
+
+        case 'heavily-armored':
+        case 'medium-armor-master':
+        return !!capabilities.mediumArmorProficiency
+
+        case 'heavy-armor-master':
+        return !!capabilities.heavyArmorProficiency
+
         default:
         return true
     }
@@ -624,171 +897,209 @@ export function featMeetsPrerequisite(featId, characterState) {
 
 export const FEATS = [
     {
-        id: 'actor',
         name: 'Actor',
         asi: {
             [CHA]: 1
         }
     },
     {
-        id: 'athlete',
         name: 'Athlete',
         asi: {
             'other': [STR, DEX]
         }
     },
     {
-        id: 'dragon-fear',
         name: 'Dragon Fear',
         asi: {
             'other': [STR, CON, CHA]
         }
     },
     {
-        id: 'dragon-hide',
         name: 'Dragon Hide',
         asi: {
             'other': [STR, CON, CHA]
         }
     },
     {
-        id: 'elven-accuracy',
         name: 'Elven Accuracy',
         asi: {
             'other': [DEX, INT, WIS, CHA]
         }
     },
     {
-        id: 'flames-phlegethos',
         name: 'Flames of Phlegethos',
         asi: {
             'other': [INT, CHA]
         }
     },
     {
-        id: 'linguist',
         name: 'Linguist',
         asi: {
             [INT]: 1
         }
     },
     {
-        id: 'keen-mind',
         name: 'Keen Mind',
         asi: {
             [INT]: 1
         }
     },
     {
-        id: 'lightly-armored',
         name: 'Lightly Armored',
         asi: {
             'other': [STR, DEX]
-        }
+        },
+        capabilities: { lightArmorProficiency: true }
     },
     {
-        id: 'moderately-armored',
         name: 'Moderately Armored',
         asi: {
             'other': [STR, DEX]
-        }
+        },
+        capabilities: { mediumArmorProficiency: true }
     },
     {
-        id: 'weapon-master',
         name: 'Weapon Master',
         asi: {
             'other': [STR, DEX]
         }
     },
     {
-        id: 'orcish-fury',
         name: 'Orcish Fury',
         asi: {
             'other': [STR, CON]
         }
     },
     {
-        id: 'tavern-brawler',
         name: 'Tavern Brawler',
         asi: {
             'other': [STR, CON]
         }
     },
     {
-        id: 'second-chance',
         name: 'Second Chance',
         asi: {
             'other': [DEX, CON, CHA]
         }
     },
     {
-        id: 'squat-nimbleness',
         name: 'Squat Nimbleness',
         asi: {
             'other': [STR, DEX]
         }
     },
     {
-        id: 'infernal-constitution',
         name: 'Infernal Constitution',
         asi: {
             [CON]: 1
         }
     },
     {
-        id: 'heavy-armor-master',
         name: 'Heavy Armor Master',
         asi: {
             [STR]: 1
         }
     },
     {
-        id: 'heavily-armored',
         name: 'Heavily Armored',
         asi: {
             [STR]: 1
-        }
+        },
+        capabilities: { heavyArmorProficiency: true }
     },
     {
-        id: 'durable',
         name: 'Durable',
         asi: {
             [CON]: 1
         }
     },
     {
-        id: 'observant',
         name: 'Observant',
         asi: {
             'other': [INT, WIS]
         }
     },
     {
-        id: 'resilient',
         name: 'Resilient',
         asi: {
             'other': 1
         }
     },
     {
-        id: 'fade-away',
         name: 'Fade Away',
         asi: {
             'other': [DEX, INT]
         }
     },
     {
-        id: 'dwarven-fortitude',
         name: 'Dwarven Fortitude',
         asi: {
             [CON]: 1
         }
     },
     {
-        id: 'fey-teleportation',
         name: 'Fey Teleportation',
         asi: {
             'other': [INT, CHA]
         }
-    }
-].sort((a, b) => a.name.localeCompare(b.name))
+    },
+    {
+        name: 'Drow High Magic',
+        capabilities: { spellcasting: true }
+    },
+    {
+        name: 'Magic Initiate',
+        capabilities: { spellcasting: true }
+    },
+    {
+        name: 'Ritual Caster',
+        capabilities: { spellcasting: true }
+    },
+    {
+        name: 'Svirfneblin Magic',
+        capabilities: { spellcasting: true }
+    },
+    {
+        name: 'Wood Elf Magic',
+        capabilities: { spellcasting: true }
+    },
+].concat(
+    [
+        'Alert',
+        'Bountiful Luck',
+        'Charger',
+        'Crossbow Expert',
+        'Defensive Duelist',
+        'Dual Wielder',
+        'Dungeon Delver',
+        'Elemental Adept (acid)',
+        'Elemental Adept (cold)',
+        'Elemental Adept (fire)',
+        'Elemental Adept (lightning)',
+        'Elemental Adept (thunder)',
+        'Grappler',
+        'Great Weapon Master',
+        'Healer',
+        'Inspiring Leader',
+        'Lucky',
+        'Mage Slayer',
+        'Martial Adept',
+        'Medium Armor Master',
+        'Mobile',
+        'Mounted Combatant',
+        'Polearm Master',
+        'Prodigy',
+        'Savage Attacker',
+        'Sentinel',
+        'Sharpshooter',
+        'Shield Master',
+        'Skilled',
+        'Skulker',
+        'Spell Sniper',
+        'Tough',
+        'War Caster',
+    ].map(name => ({ name }))
+).map(feat => ({
+    id: feat.name.toLowerCase().replace(/[^a-zA-Z]+/, '-'),
+    ...feat
+})).sort((a, b) => a.name.localeCompare(b.name))

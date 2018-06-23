@@ -50,7 +50,7 @@ class App extends Component {
                 style={{ fontStyle: this.state.newClass ? 'normal' : 'italic' }}
         >
           <option value='' disabled>Choose class:</option>
-          {Object.keys(CLASSES).map(c => <option key={c} value={c}>{CLASSES[c]}</option>)}
+          {Object.keys(CLASSES).map(c => <option key={c} value={c}>{CLASSES[c].name}</option>)}
         </select>
         <button onClick={e => resetClass(this.state.newClass)} disabled={!this.state.newClass}>Reset levels</button>
         <table>
