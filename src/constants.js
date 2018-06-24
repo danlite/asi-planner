@@ -253,6 +253,7 @@ export const RACES = [
     {
         id: 'half-elf',
         name: 'Half-elf',
+        family: 'Half-elf',
         asi: {
             [CHA]: 2,
             'other': { 1: 2 }
@@ -261,6 +262,7 @@ export const RACES = [
     {
         id: 'half-elf-wood',
         name: 'Half-elf (wood)',
+        family: 'Half-elf',
         asi: {
             [CHA]: 2,
             'other': { 1: 2 }
@@ -269,6 +271,7 @@ export const RACES = [
     {
         id: 'half-elf-high',
         name: 'Half-elf (high)',
+        family: 'Half-elf',
         capabilities: { spellcasting: true },
         asi: {
             [CHA]: 2,
@@ -278,6 +281,7 @@ export const RACES = [
     {
         id: 'half-elf-drow',
         name: 'Half-elf (drow)',
+        family: 'Half-elf',
         capabilities: { spellcasting: true },
         asi: {
             [CHA]: 2,
@@ -287,6 +291,7 @@ export const RACES = [
     {
         id: 'half-elf-aquatic',
         name: 'Half-elf (aquatic)',
+        family: 'Half-elf',
         asi: {
             [CHA]: 2,
             'other': { 1: 2 }
@@ -825,7 +830,7 @@ export function featMeetsPrerequisite(featId, characterState) {
         case 'elven-accuracy':
         return race.family === 'Elf' || race.family === 'Half-elf'
 
-        case 'flames-phlegethos':
+        case 'flames-of-phlegethos':
         case 'infernal-constitution':
         return race.family === 'Tiefling'
 
@@ -875,7 +880,11 @@ export function featMeetsPrerequisite(featId, characterState) {
         case 'ritual-caster':
         return abilityScores[INT] >= 13 || abilityScores[WIS] >= 13
 
-        case 'elemental-adept':
+        case 'elemental-adept-acid':
+        case 'elemental-adept-cold':
+        case 'elemental-adept-fire':
+        case 'elemental-adept-lightning':
+        case 'elemental-adept-thunder':
         case 'spell-sniper':
         case 'war-caster':
         return !!capabilities.spellcasting
@@ -1100,6 +1109,6 @@ export const FEATS = [
         'War Caster',
     ].map(name => ({ name }))
 ).map(feat => ({
-    id: feat.name.toLowerCase().replace(/[^a-zA-Z]+/, '-'),
+    id: feat.name.toLowerCase().replace(/[^a-zA-Z]+/g, '-').replace(/-$/, ''),
     ...feat
 })).sort((a, b) => a.name.localeCompare(b.name))
