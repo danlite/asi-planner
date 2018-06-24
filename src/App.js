@@ -6,14 +6,14 @@ import RolledAbilitiesRow from './components/RolledAbilitiesRow.js'
 import RaceRow from './components/RaceRow.js'
 import { ABILITIES, CLASSES, MAX_LEVEL_COUNT, formatModifier, scoreModifier } from './constants'
 import { ADD_LEVEL_FEATURE, RESET_CHARACTER_CLASS } from './actions'
-import { classLevelsSelector, levelAbilityScoresSelector } from './selectors'
+import { classLevelsSelectorFactory, levelAbilityScoresSelectorFactory } from './selectors'
 import { connect } from 'react-redux'
 import './App.css'
 
 const mapStateToProps = state => {
   return {
-    classLevels: classLevelsSelector(state),
-    finalAbilityScores: levelAbilityScoresSelector(state)[MAX_LEVEL_COUNT],
+    classLevels: classLevelsSelectorFactory.evaluate(state, MAX_LEVEL_COUNT),
+    finalAbilityScores: levelAbilityScoresSelectorFactory.fetch(state, MAX_LEVEL_COUNT),
   }
 }
 
@@ -41,7 +41,7 @@ class App extends Component {
 
   render() {
     const { classLevels, resetClass, finalAbilityScores } = this.props
-    const initialLevel = classLevels[0]
+    const initialLevel = classLevels[1]
 
     return (
       <div className={['App', this.state.compact ? 'compact' : ''].join(' ')}>
@@ -78,7 +78,9 @@ class App extends Component {
           </thead>
           <tbody>
             {initialLevel ?
-              classLevels.map(level => <LevelRow key={level.characterLevel} level={level} />) :
+              Object.keys(classLevels)
+                    .sort((a, b) => a - b)
+                    .map(characterLevel => <LevelRow key={characterLevel} level={classLevels[characterLevel]} />) :
               null
             }
             {finalAbilityScores && <tr>

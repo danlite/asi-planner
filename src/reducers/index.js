@@ -15,7 +15,7 @@ import {
     SET_CHARACTER_LEVEL_CLASS,
     RESET_CHARACTER_CLASS,
 } from '../actions'
-import { classLevelsSelector } from '../selectors'
+import { classLevelsSelectorFactory } from '../selectors'
 
 const INITIAL_ROLLED_ABILITIES = {
     [STR]: 10,
@@ -31,31 +31,18 @@ const INITIAL_CLASS_PROGRESSION = new Array(MAX_LEVEL_COUNT)
 function classProgression(state = INITIAL_CLASS_PROGRESSION, action) {
     switch (action.type) {
         case SET_CHARACTER_LEVEL_CLASS:
-        const index = action.level - 1
-        if (index >= MAX_LEVEL_COUNT || index < 0)
+        if (action.class > MAX_LEVEL_COUNT || action.class < 1)
             return state
 
-        // If changing this level splits up
-        // var latestLevel = index
-        // var latestClass = null
-        // do {
-        //     latestClass = state[latestLevel]
-        //     latestLevel -= 1
-        // } while (latestLevel > 0 && !latestClass)
-        // if (latestClass) {
-
-        // }
-
-        return [
-            ...state.slice(0, index),
-            action.class,
-            ...state.slice(index + 1)
-        ]
+        return {
+            ...state,
+            [action.level]: action.class
+        }
 
         case RESET_CHARACTER_CLASS:
-        state = []
-        for (var i = 0; i < MAX_LEVEL_COUNT; i++)
-            state.push(action.class)
+        state = {}
+        for (var i = 1; i <= MAX_LEVEL_COUNT; i++)
+            state[i] = action.class
         return state
 
         default:
@@ -108,30 +95,7 @@ function levelFeature(state = null, action) {
     }
 }
 
-/*
-// old array-style levelFeatures reducer
-function levelFeatures(state = [], action) {
-    switch (action.type) {
-        case ADD_LEVEL_FEATURE:
-        return [...state, levelFeature(null, action)]
-
-        case SELECT_LEVEL_FEATURE_ABILITY:
-        case SELECT_FEAT:
-        case SELECT_ASI:
-        const i = action.index
-        return [
-            ...state.slice(0, i),
-            levelFeature(state[i], action),
-            ...state.slice(i + 1)
-        ]
-
-        default:
-        return state
-    }
-}
-*/
-
-function levelFeatures(state = {}, action, classLevels = []) {
+function levelFeatures(state = {}, action, classLevels = {}) {
     const { level } = action
 
     switch (action.type) {
@@ -159,7 +123,7 @@ function levelFeatures(state = {}, action, classLevels = []) {
         case SET_CHARACTER_LEVEL_CLASS:
         case RESET_CHARACTER_CLASS:
         state = { ...state }
-        classLevels.forEach(level => {
+        Object.values(classLevels).forEach(level => {
             const { characterLevel } = level
             const feature = state[characterLevel]
             if (!feature)
@@ -206,17 +170,12 @@ function plannerApp(state = {}, action) {
         classProgression: classProgression(state.classProgression, action),
     }
 
-    const classLevels = classLevelsSelector(newState)
+    // The `levelFeatures` reducer relies on accessing the state as returned
+    // by the `classLevels` selector.
+    const classLevels = classLevelsSelectorFactory.evaluate(newState, MAX_LEVEL_COUNT)
     newState.levelFeatures = levelFeatures(state.levelFeatures, action, classLevels)
 
     return newState
 }
-
-// const plannerApp = combineReducers({
-//     rolledAbilities,
-//     race,
-//     classProgression,
-//     levelFeatures,
-// })
 
 export default plannerApp

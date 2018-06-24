@@ -4,7 +4,7 @@ import { CLASSES, FEATS } from '../constants'
 import { SELECT_LEVEL_FEATURE_ABILITY, SELECT_FEAT, SELECT_ASI, REMOVE_LEVEL_FEATURE, SET_CHARACTER_LEVEL_CLASS } from '../actions'
 import {
   featureAvailableAbilitiesSelector,
-  levelAbilityScoresSelector,
+  levelAbilityScoresSelectorFactory,
   availableFeatsSelector,
   collapsedLevelsSelector,
   collapsibleLevelsSelector,
@@ -20,7 +20,7 @@ const mapStateToProps = (state, ownProps) => {
         collapsedLevels: collapsedLevelsSelector(state)[ownProps.level.characterLevel],
         collapsibleAnchorLevel: collapsibleLevelsSelector(state)[ownProps.level.characterLevel],
         availableFeats: availableFeatsSelector(state)[ownProps.level.characterLevel],
-        abilityScores: levelAbilityScoresSelector(state)[ownProps.level.characterLevel],
+        abilityScores: levelAbilityScoresSelectorFactory.fetch(state, ownProps.level.characterLevel),
         availableAbilities: feature ? featureAvailableAbilitiesSelector(feature) : {},
         availableClasses: availableClassesSelector(state)[ownProps.level.characterLevel],
     }

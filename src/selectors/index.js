@@ -2,101 +2,149 @@ import { createSelector } from 'reselect'
 import {
   ABILITIES, CLASSES, FEATS,
   STR, DEX, INT, WIS, CHA,
+  MAX_LEVEL_COUNT,
   asiLevelsForClass, featMeetsPrerequisite,
 } from '../constants'
+
+const TESTING = false
+
+function sortByCharacterLevel(obj) {
+  return Object.keys(obj).sort((a, b) => a - b).map(k => obj[k])
+}
+
+class CharacterLevelSelectorFactory {
+  constructor() {
+    this.selectors = {}
+    this.createSelectorArgs = Array.from(arguments)
+
+    this._buildSelector = this._buildSelector.bind(this)
+    this.getSelector = this.getSelector.bind(this)
+    this.evaluate = this.evaluate.bind(this)
+    this.fetch = this.fetch.bind(this)
+    this.previous = this.previous.bind(this)
+    this.final = this.final.bind(this)
+  }
+
+  _buildSelector(characterLevel) {
+    var previousSelector = () => null
+    if (characterLevel > 1) {
+      previousSelector = this.getSelector(characterLevel - 1)
+    }
+
+    const passedSelectors = this.createSelectorArgs.slice(0, -1)
+    const selectorFunc = this.createSelectorArgs.slice(-1)[0]
+
+    const selector = createSelector(
+      ...passedSelectors,
+      previousSelector,
+      (state, characterLevel) => characterLevel,
+      selectorFunc
+    )
+
+    return function() {
+      return selector(arguments[0], characterLevel)
+    }
+  }
+
+  getSelector(characterLevel) {
+    var selector = this.selectors[characterLevel]
+    if (!selector) {
+      selector = this._buildSelector(characterLevel)
+      this.selectors[characterLevel] = selector
+    }
+    return selector
+  }
+
+  evaluate(state, characterLevel = MAX_LEVEL_COUNT) {
+    return this.getSelector(characterLevel)(state)
+  }
+
+  fetch(state, characterLevel) {
+    return this.getSelector(characterLevel)(state)[characterLevel]
+  }
+
+  previous(state, characterLevel) {
+    if (characterLevel === 1)
+      return null
+
+    return this.fetch(state, characterLevel - 1)
+  }
+
+  final(state) {
+    return this.evaluate(state, MAX_LEVEL_COUNT)
+  }
+}
 
 const classKeys = Object.keys(CLASSES)
 
 const allFeatsSelector = () => FEATS
 const allClassesSelector = () => classKeys
 
-const classProgressionSelector = state => state.classProgression
 const raceSelector = state => state.race
-const levelFeaturesSelector = state => state.levelFeatures
 const rolledAbilitiesSelector = state => state.rolledAbilities
 
 const featureAsiSelector = feature => feature.asi || {}
 const featureSelectedAbilitiesSelector = feature => feature.selectedAbilities
 
-export const classLevelsSelector = createSelector(
-  /*
-    Pass in an array of class keys and it will return/print
-    a representation containing the chosen classes at each level
-    and whether that level grants an ASI.
-    Pass in an appropriate race and it will mark first level as
-    granting a feat (i.e. in the case of the variant human).
-
-    For example, this:
-
-    classLevels([
-        'wizard',
-        'wizard',
-        'wizard',
-        'fighter',
-        'wizard',
-        'wizard',
-        'fighter',
-        'fighter',
-        'fighter'
-    ], { feat: true })
-
-    would print:
-
-    Wizard 1 [F]
-    Wizard 2
-    Wizard 3
-    Wizard 3 / Fighter 1 (4)
-    Wizard 4 / Fighter 1 (5) [ASI] [F]
-    Wizard 5 / Fighter 1 (6)
-    Wizard 5 / Fighter 2 (7)
-    Wizard 5 / Fighter 3 (8)
-    Wizard 5 / Fighter 4 (9) [ASI] [F]
-  */
-  classProgressionSelector,
-  raceSelector,
-  (classProgression, race) => {
-    const currentClasses = {}
-    const classesNextAsiLevelIndex = {}
-    const levels = []
-    const hasRacialFeat = !!(race && race.feat)
-    var characterLevel = 0
-
-    classProgression.forEach(_class => {
-      characterLevel++
-
-      var asi = false
-      var classLevel = currentClasses[_class]
-      if (typeof classLevel === 'undefined')
-        classLevel = 0
-      classLevel++
-      currentClasses[_class] = classLevel
-
-      const asiLevels = asiLevelsForClass(_class)
-      var nextAsiLevelIndex = classesNextAsiLevelIndex[_class] || 0
-      const nextAsiLevel = asiLevels[nextAsiLevelIndex]
-      if (nextAsiLevel === classLevel) {
-        asi = true
-        classesNextAsiLevelIndex[_class] = ++nextAsiLevelIndex
-      }
-
-      levels.push({
-        'characterLevel': characterLevel,
-          'feat': (hasRacialFeat && (characterLevel === 1)) || asi, // optional ASI rule
-          'asi': asi,
-          'capabilities': {},
-          'class': _class,
-          'classes': {...currentClasses}
-        })
-    })
-
-    return levels
+const classProgressionSelectorFactory = new CharacterLevelSelectorFactory(
+  (state, characterLevel) => {
+    return state.classProgression[characterLevel]
+  },
+  (currentLevelClass, previousLevelClassProgression, characterLevel) => {
+    return {...previousLevelClassProgression, [characterLevel]: currentLevelClass}
   }
 )
 
+export const classLevelsSelectorFactory = new CharacterLevelSelectorFactory(
+  raceSelector,
+  classProgressionSelectorFactory.evaluate,
+  (race, classProgression, lowerLevelClassLevels, characterLevel) => {
+    // console.log({characterLevel, lowerLevelClassLevels, race, classProgression})
+    const hasRacialFeat = !!(race && race.feat)
+    const _class = classProgression[characterLevel]
+    const previousClasses = lowerLevelClassLevels ? {...lowerLevelClassLevels[characterLevel - 1].classes} : {}
+    const levelInClass = (previousClasses[_class] || 0) + 1
+    const asi = asiLevelsForClass(_class).includes(levelInClass)
+
+    return {
+      ...lowerLevelClassLevels,
+      [characterLevel]: {
+        'characterLevel': characterLevel,
+        'feat': (hasRacialFeat && (characterLevel === 1)) || asi, // optional ASI rule
+        'asi': asi,
+        'capabilities': {},
+        'class': _class,
+        'classes': {...previousClasses, [_class]: levelInClass}
+      }
+    }
+  }
+)
+
+function testClassLevelsSelectorFactory() {
+  var state = { race: { feat: true }, classProgression: { 1: 'wizard', 2: 'wizard', 3: 'wizard', 4: 'wizard', 5: 'wizard' } }
+  const first3a = classLevelsSelectorFactory.evaluate(state, 3)
+  const first4a = classLevelsSelectorFactory.evaluate(state, 4)
+  state = { ...state, classProgression: { ...state.classProgression, 4: 'rogue' } }
+  const first3b = classLevelsSelectorFactory.evaluate(state, 3)
+  const first4b = classLevelsSelectorFactory.evaluate(state, 4)
+
+  if (first3a !== first3b)
+    throw new Error('first 3 should be identical!')
+  else
+    console.log('[OK] first 3 are identical')
+
+  if (first4a[4].class === first4b[4].class)
+    throw new Error('4th should not be the same classes!')
+  else
+    console.log('[OK] 4th are different classes')
+}
+if (TESTING)
+  testClassLevelsSelectorFactory()
+
 export function displayClassProgression(state) {
-  const levels = classLevelsSelector(state)
+  const levels = classLevelsSelectorFactory.evaluate(state, MAX_LEVEL_COUNT)
   console.log(
-    levels.map(level => {
+    sortByCharacterLevel(levels).map(level => {
       const classKeys = Object.keys(level.classes)
       return classKeys.map(_class => {
         return `${CLASSES[_class].name} ${level.classes[_class]}`
@@ -184,9 +232,54 @@ export const featureAvailableAbilitiesSelector = createSelector(
   }
 )
 
-const chosenFeatsSelector = createSelector(
-  levelFeaturesSelector,
-  levelFeatures => Object.values(levelFeatures).filter(f => f.type === 'feat')
+const levelFeaturesSelectorFactory = new CharacterLevelSelectorFactory(
+  (state, characterLevel) => state.levelFeatures[characterLevel],
+  (levelFeature, previousLevelFeatures, characterLevel) => {
+    return {
+      ...previousLevelFeatures,
+      [characterLevel]: levelFeature
+    }
+  }
+)
+
+function testLevelFeaturesSelectorFactory() {
+  var state = { levelFeatures: { 1: { c: 'cool' }, 2: { c: 'hot' } } }
+  const first1a = levelFeaturesSelectorFactory.evaluate(state, 1)
+  const first2a = levelFeaturesSelectorFactory.evaluate(state, 2)
+  state = { ...state, levelFeatures: { ...state.levelFeatures, 2: { c: 'warm' } } }
+  const first1b = levelFeaturesSelectorFactory.evaluate(state, 1)
+  const first2b = levelFeaturesSelectorFactory.evaluate(state, 2)
+
+  if (first1a !== first1b)
+    throw new Error('first 1 should be identical!')
+  else
+    console.log('[OK] first 1 are identical')
+
+  if (first2a[2]['c'] === first2b[2]['c'])
+    throw new Error('2nd should not be the same c-values!')
+  else
+    console.log('[OK] 2nd are different c-values')
+}
+if (TESTING)
+  testLevelFeaturesSelectorFactory()
+
+const chosenFeatsSelectorFactory = new CharacterLevelSelectorFactory(
+  levelFeaturesSelectorFactory.evaluate,
+  (levelFeatures, lowerLevelChosenFeats, characterLevel) => {
+    // console.log({levelFeatures, lowerLevelChosenFeats, characterLevel})
+    const previousChosenFeats = lowerLevelChosenFeats ? lowerLevelChosenFeats[characterLevel - 1] : []
+    const chosenFeats = [...previousChosenFeats]
+    const levelFeature = levelFeatures[characterLevel]
+
+    if (levelFeature && levelFeature.type === 'feat') {
+      chosenFeats.push(levelFeature.id)
+    }
+
+    return {
+      ...lowerLevelChosenFeats,
+      [characterLevel]: chosenFeats
+    }
+  }
 )
 
 const abilityScoreImprovementsFromFeature = (ability, feature) =>
@@ -203,35 +296,34 @@ export const startingAbilityScoresSelector = createSelector(
   }
 )
 
-export const levelAbilityScoresSelector = createSelector(
+export const levelAbilityScoresSelectorFactory = new CharacterLevelSelectorFactory(
   startingAbilityScoresSelector,
-  classLevelsSelector,
-  levelFeaturesSelector,
-  (startingAbilityScores, classLevels, levelFeatures) => {
-    var currentAbilities = { ...startingAbilityScores }
-    const levelAbilityScores = {}
+  levelFeaturesSelectorFactory.fetch,
+  (startingAbilityScores, levelFeature, lowerLevelAbilityScores, characterLevel) => {
+    const previousLevelAbilityScores = lowerLevelAbilityScores ?
+      lowerLevelAbilityScores[characterLevel - 1] :
+      startingAbilityScores
 
-    classLevels.forEach(level => {
-      const abilities = { ...currentAbilities }
-      const feature = levelFeatures[level.characterLevel]
-      if (feature)
-        ABILITIES.forEach(a => abilities[a] += abilityScoreImprovementsFromFeature(a, feature))
+    const currentAbilityScores = { ...previousLevelAbilityScores }
 
-      levelAbilityScores[level.characterLevel] = abilities
-      currentAbilities = { ...abilities }
-    })
+    const feature = levelFeature
+    if (feature)
+      ABILITIES.forEach(a => currentAbilityScores[a] += abilityScoreImprovementsFromFeature(a, feature))
 
-    return levelAbilityScores
+    return {
+      ...lowerLevelAbilityScores,
+      [characterLevel]: currentAbilityScores
+    }
   }
 )
 
 export const collapsibleLevelsSelector = createSelector(
-  classLevelsSelector,
+  classLevelsSelectorFactory.final,
   (classLevels) => {
     const collapsibleLevels = {}
     var currentAnchorLevel
 
-    classLevels.forEach((level, i) => {
+    sortByCharacterLevel(classLevels).forEach((level, i) => {
       // Is first level; or has a feat, an ASI, or a different class
       const isDifferent = (
         !currentAnchorLevel ||
@@ -306,12 +398,12 @@ function abilityScoresValidForMulticlass(a, _class) {
 
 export const availableClassesSelector = createSelector(
   allClassesSelector,
-  levelAbilityScoresSelector,
-  classLevelsSelector,
+  levelAbilityScoresSelectorFactory.final,
+  classLevelsSelectorFactory.final,
   (allClasses, levelAbilityScores, classLevels) => {
     const availableClasses = {}
 
-    classLevels.forEach(level => {
+    sortByCharacterLevel(classLevels).forEach(level => {
       const { characterLevel } = level
       const priorAbilityScores = levelAbilityScores[characterLevel - 1]
       const currentClass = level.class
@@ -334,48 +426,46 @@ export const availableClassesSelector = createSelector(
   }
 )
 
-export const levelCapabilitiesSelector = createSelector(
+export const levelCapabilitiesSelectorFactory = new CharacterLevelSelectorFactory(
   raceSelector,
-  classLevelsSelector,
-  levelFeaturesSelector,
-  (race, classLevels, levelFeatures) => {
-    var currentCapabilities = { ...race.capabilities }
-    const levelCapabilities = {}
+  classLevelsSelectorFactory.fetch,
+  levelFeaturesSelectorFactory.previous, // use the previous because otherwise selecting a feat
+                                         // could update the available feats for the current level
+  (race, classLevel, previousLevelFeature, lowerLevelCapabilities, characterLevel) => {
+    const previousCapabilities = lowerLevelCapabilities ?
+      lowerLevelCapabilities[characterLevel - 1] :
+      {...race.capabilities}
 
-    classLevels.forEach(level => {
-      const abilities = { ...currentCapabilities }
+    const capabilities = {
+      ...previousCapabilities,
+      ...(previousLevelFeature ? previousLevelFeature.capabilities : null)
+    }
 
-      levelCapabilities[level.characterLevel] = abilities
-
-      currentCapabilities = { ...abilities }
-    })
-
-    return levelCapabilities
+    return {
+      ...lowerLevelCapabilities,
+      [characterLevel]: capabilities
+    }
   }
 )
 
 export const availableFeatsSelector = createSelector(
   allFeatsSelector,
-  levelFeaturesSelector,
-  levelAbilityScoresSelector,
-  levelCapabilitiesSelector,
+  levelAbilityScoresSelectorFactory.final,
+  chosenFeatsSelectorFactory.final,
+  levelCapabilitiesSelectorFactory.final,
   startingAbilityScoresSelector,
   raceSelector,
-  classLevelsSelector,
-  (allFeats, levelFeatures, levelAbilityScores, levelCapabilities, startingAbilityScores, race, classLevels) => {
-    const chosenFeatIds = []
+  classLevelsSelectorFactory.final,
+  (allFeats, levelAbilityScores, levelChosenFeatIds, levelCapabilities, startingAbilityScores, race, classLevels) => {
     const availableFeats = {}
 
-    classLevels.forEach(level => {
+    sortByCharacterLevel(classLevels).forEach(level => {
       const { characterLevel } = level
       const firstLevel = characterLevel === 1
+      const chosenFeatIds = levelChosenFeatIds[characterLevel]
 
       const abilityScores = firstLevel ? startingAbilityScores : levelAbilityScores[characterLevel - 1]
-      const feature = levelFeatures[characterLevel - 1]
-      const capabilities = firstLevel ? {} : levelCapabilities[characterLevel - 1]
-
-      if (feature && feature.type === 'feat')
-        chosenFeatIds.push(feature.id)
+      const capabilities = levelCapabilities[characterLevel]
 
       availableFeats[characterLevel] = allFeats.filter(f => {
         return featMeetsPrerequisite(f.id, { race, abilityScores, capabilities }) && !chosenFeatIds.includes(f.id)
