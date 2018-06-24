@@ -1100,45 +1100,45 @@ export function featMeetsPrerequisite(featId, characterState) {
     switch (featId) {
         case 'dragon-fear':
         case 'dragon-hide':
-        return race.id === 'dragonborn'
+        return race && (race.id === 'dragonborn')
 
         case 'elven-accuracy':
-        return race.family === 'Elf' || race.family === 'Half-elf'
+        return race && (race.family === 'Elf' || race.family === 'Half-elf')
 
         case 'flames-of-phlegethos':
         case 'infernal-constitution':
-        return race.family === 'Tiefling'
+        return race && (race.family === 'Tiefling')
 
         case 'orcish-fury':
-        return race.id === 'half-orc'
+        return race && (race.id === 'half-orc')
 
         case 'fey-teleportation':
-        return race.id === 'elf-high'
+        return race && (race.id === 'elf-high')
 
         case 'second-chance':
         case 'bountiful-luck':
-        return race.family === 'Halfling'
+        return race && (race.family === 'Halfling')
 
         case 'squat-nimbleness':
-        return race.family === 'Dwarf' || race.size === 'small'
+        return race && (race.family === 'Dwarf' || race.size === 'small')
 
         case 'dwarven-fortitude':
-        return race.family === 'Dwarf'
+        return race && (race.family === 'Dwarf')
 
         case 'fade-away':
-        return race.family === 'Gnome'
+        return race && (race.family === 'Gnome')
 
         case 'drow-high-magic':
-        return race.id === 'drow'
+        return race && (race.id === 'drow')
 
         case 'svirfneblin-magic':
-        return race.id === 'gnome-deep'
+        return race && (race.id === 'gnome-deep')
 
         case 'wood-elf-magic':
-        return race.id === 'elf-wood'
+        return race && (race.id === 'elf-wood')
 
         case 'prodigy':
-        return race.family === 'Human' || race.family === 'Half-elf' || race.id === 'half-orc'
+        return race && (race.family === 'Human' || race.family === 'Half-elf' || race.id === 'half-orc')
 
         case 'defensive-duelist':
         return abilityScores[DEX] >= 13

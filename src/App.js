@@ -87,7 +87,7 @@ class App extends Component {
                     .map(characterLevel => <LevelRow key={characterLevel} level={classLevels[characterLevel]} />) :
               null
             }
-            {finalAbilityScores && <tr>
+            {initialLevel.class && <tr>
               <td>
                 <button onClick={e => this.setState({ compact: !this.state.compact })}>
                   {this.state.compact ? 'Expand' : 'Collapse'}

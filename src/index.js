@@ -21,15 +21,18 @@ const store = createStore(
     middleware
 )
 
-store.dispatch({
-    type: RESET_CHARACTER_CLASS,
-    class: 'barbarian'
-})
+const startup = false
+if (startup) {
+    store.dispatch({
+        type: RESET_CHARACTER_CLASS,
+        class: 'barbarian'
+    })
 
-store.dispatch({
-    type: SET_RACE,
-    race: 'human-variant'
-})
+    store.dispatch({
+        type: SET_RACE,
+        race: 'human-variant'
+    })
+}
 
 ReactDOM.render(<Provider store={store}>
     <App />

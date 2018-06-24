@@ -105,6 +105,9 @@ export const classLevelsSelectorFactory = new CharacterLevelSelectorFactory(
     const previousClasses = lowerLevelClassLevels ? {...lowerLevelClassLevels[characterLevel - 1].classes} : {}
     const levelInClass = (previousClasses[_class] || 0) + 1
     const asi = asiLevelsForClass(_class).includes(levelInClass)
+    const classes = {...previousClasses}
+    if (_class)
+      classes[_class] = levelInClass
 
     return {
       ...lowerLevelClassLevels,
@@ -114,7 +117,7 @@ export const classLevelsSelectorFactory = new CharacterLevelSelectorFactory(
         'asi': asi,
         'capabilities': {},
         'class': _class,
-        'classes': {...previousClasses, [_class]: levelInClass}
+        'classes': classes
       }
     }
   }
@@ -434,7 +437,7 @@ export const levelCapabilitiesSelectorFactory = new CharacterLevelSelectorFactor
   (race, classLevel, previousLevelFeature, lowerLevelCapabilities, characterLevel) => {
     const previousCapabilities = lowerLevelCapabilities ?
       lowerLevelCapabilities[characterLevel - 1] :
-      {...race.capabilities}
+      {...(race || {}).capabilities}
 
     const capabilities = {
       ...previousCapabilities,

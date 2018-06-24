@@ -94,6 +94,9 @@ class LevelRow extends Component {
     if (collapsedLevels)
       collapsedLevelLabel = `${level.characterLevel}–${collapsedLevels[collapsedLevels.length - 1]}`
 
+    if (!level.class)
+      return null
+
     return (
       <tr className={['LevelRow', collapsibleAnchorLevel ? 'collapsible' : ''].join(' ')}>
         <td style={{ color: 'white', backgroundColor: `#${CLASSES[level.class].color}` }}
