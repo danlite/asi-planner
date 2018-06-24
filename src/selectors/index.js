@@ -3,7 +3,7 @@ import {
   ABILITIES, CLASSES, FEATS,
   STR, DEX, INT, WIS, CHA,
   MAX_LEVEL_COUNT,
-  asiLevelsForClass, featMeetsPrerequisite,
+  asiLevelsForClass, featMeetsPrerequisite, formatSubclassName
 } from '../constants'
 
 const TESTING = false
@@ -473,5 +473,32 @@ export const availableFeatsSelector = createSelector(
     })
 
     return availableFeats
+  }
+)
+
+export const formattedClassLevelsSelectorFactory = new CharacterLevelSelectorFactory(
+  state => state.subclasses,
+  classLevelsSelectorFactory.fetch,
+  (chosenSubclasses, classLevel, lowerLevelResults, characterLevel) => {
+    const classKeys = Object.keys(classLevel.classes)
+
+    const formatted = (
+      classKeys.map(_class => {
+        const classInfo = CLASSES[_class]
+        const subclassInfo = classInfo.subclasses[chosenSubclasses[_class]]
+        var classString = `${classInfo.name} ${classLevel.classes[_class]}`
+
+        if (subclassInfo && classLevel.classes[_class] >= classInfo.subclassLevel)
+          classString = formatSubclassName(subclassInfo, true) + ' ' + classString
+
+        return classString
+      }).join(' / ') +
+      (classKeys.length > 1 ? ` (${classLevel.characterLevel})` : '')
+    )
+
+    return {
+      ...lowerLevelResults,
+      [characterLevel]: formatted
+    }
   }
 )

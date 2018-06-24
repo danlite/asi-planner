@@ -9,6 +9,7 @@ import {
   collapsedLevelsSelector,
   collapsibleLevelsSelector,
   availableClassesSelector,
+  formattedClassLevelsSelectorFactory,
 } from '../selectors'
 import ASICells from './ASICells'
 import LevelAbilityScoreCells from './LevelAbilityScoreCells'
@@ -23,6 +24,7 @@ const mapStateToProps = (state, ownProps) => {
         abilityScores: levelAbilityScoresSelectorFactory.fetch(state, ownProps.level.characterLevel),
         availableAbilities: feature ? featureAvailableAbilitiesSelector(feature) : {},
         availableClasses: availableClassesSelector(state)[ownProps.level.characterLevel],
+        formattedClassLevels: formattedClassLevelsSelectorFactory.fetch(state, ownProps.level.characterLevel),
     }
 }
 
@@ -79,8 +81,8 @@ class LevelRow extends Component {
       collapsibleAnchorLevel,
       handleAbilityChange,
       handleClassChange,
+      formattedClassLevels
     } = this.props
-    const classKeys = Object.keys(level.classes)
 
     var selectLabelWords = []
     if (level.asi)
@@ -95,10 +97,7 @@ class LevelRow extends Component {
     return (
       <tr className={['LevelRow', collapsibleAnchorLevel ? 'collapsible' : ''].join(' ')}>
         <td style={{ color: 'white', backgroundColor: `#${CLASSES[level.class].color}` }}
-            title={
-              classKeys.map(_class => `${CLASSES[_class].name} ${level.classes[_class]}`).join(' / ') +
-              (classKeys.length > 1 ? ` (${level.characterLevel})` : '')
-            }
+            title={formattedClassLevels}
         >
           <span className='collapsible'>{level.characterLevel}</span>
           <span className='collapsed'>{collapsedLevelLabel}</span>

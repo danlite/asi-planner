@@ -4,14 +4,15 @@ import React, { Component } from 'react'
 import LevelRow from './components/LevelRow.js'
 import RolledAbilitiesRow from './components/RolledAbilitiesRow.js'
 import RaceRow from './components/RaceRow.js'
-import { ABILITIES, CLASSES, MAX_LEVEL_COUNT, formatModifier, scoreModifier } from './constants'
-import { ADD_LEVEL_FEATURE, RESET_CHARACTER_CLASS } from './actions'
+import { ABILITIES, CLASSES, MAX_LEVEL_COUNT, formatModifier, scoreModifier, formatSubclassName } from './constants'
+import { RESET_CHARACTER_CLASS, SET_CLASS_SUBCLASS } from './actions'
 import { classLevelsSelectorFactory, levelAbilityScoresSelectorFactory } from './selectors'
 import { connect } from 'react-redux'
 import './App.css'
 
 const mapStateToProps = state => {
   return {
+    chosenSubclasses: state.subclasses,
     classLevels: classLevelsSelectorFactory.evaluate(state, MAX_LEVEL_COUNT),
     finalAbilityScores: levelAbilityScoresSelectorFactory.fetch(state, MAX_LEVEL_COUNT),
   }
@@ -19,15 +20,17 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    handleNewLevelFeature: e => {
-      dispatch({
-        type: ADD_LEVEL_FEATURE
-      })
-    },
     resetClass: _class => {
       dispatch({
         type: RESET_CHARACTER_CLASS,
         class: _class
+      })
+    },
+    setSubclass: (_class, subclass) => {
+      dispatch({
+        type: SET_CLASS_SUBCLASS,
+        class: _class,
+        subclass
       })
     }
   }
@@ -40,8 +43,9 @@ class App extends Component {
   }
 
   render() {
-    const { classLevels, resetClass, finalAbilityScores } = this.props
+    const { classLevels, resetClass, finalAbilityScores, setSubclass, chosenSubclasses } = this.props
     const initialLevel = classLevels[1]
+    const lastLevel = classLevels[MAX_LEVEL_COUNT]
 
     return (
       <div className={['App', this.state.compact ? 'compact' : ''].join(' ')}>
@@ -98,6 +102,28 @@ class App extends Component {
             </tr>}
           </tbody>
         </table>
+        {Object.keys(lastLevel.classes).map(_class => {
+          const classInfo = CLASSES[_class]
+          if (lastLevel.classes[_class] < classInfo.subclassLevel)
+            return null
+
+          const subclasses = classInfo.subclasses
+          const chosenSubclass = chosenSubclasses[_class]
+
+          return <div key={_class}>
+            {classInfo.name}{': '}
+            <select value={chosenSubclass || ''}
+                    onChange={e => setSubclass(_class, e.target.value)}
+                    style={{ fontStyle: chosenSubclass ? 'normal' : 'italic' }}
+            >
+              <option value='' disabled>{classInfo.subclassType}:</option>
+              {Object.keys(subclasses).map(subclassKey => {
+                const subclass = subclasses[subclassKey]
+                return <option key={subclassKey} value={subclassKey}>{formatSubclassName(subclass)}</option>
+              })}
+            </select>
+          </div>
+        })}
       </div>
     )
   }

@@ -14,6 +14,7 @@ import {
     SELECT_ASI,
     SET_CHARACTER_LEVEL_CLASS,
     RESET_CHARACTER_CLASS,
+    SET_CLASS_SUBCLASS,
 } from '../actions'
 import { classLevelsSelectorFactory } from '../selectors'
 
@@ -163,11 +164,25 @@ function race(state = null, action) {
     }
 }
 
+function subclasses(state = {}, action) {
+    switch (action.type) {
+        case SET_CLASS_SUBCLASS:
+        return {
+            ...state,
+            [action.class]: action.subclass
+        }
+
+        default:
+        return state
+    }
+}
+
 function plannerApp(state = {}, action) {
     const newState = {
         rolledAbilities: rolledAbilities(state.rolledAbilities, action),
         race: race(state.race, action),
         classProgression: classProgression(state.classProgression, action),
+        subclasses: subclasses(state.subclasses, action),
     }
 
     // The `levelFeatures` reducer relies on accessing the state as returned

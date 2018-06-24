@@ -25,6 +25,28 @@ export function scoreModifier(score) {
     return Math.floor((score - 10) / 2)
 }
 
+export function formatClassNames(level) {
+    const classKeys = Object.keys(level.classes)
+    return (
+        classKeys.map(_class => `${CLASSES[_class].name} ${level.classes[_class]}`).join(' / ') +
+        (classKeys.length > 1 ? ` (${level.characterLevel})` : '')
+    )
+}
+
+export function formatSubclassName(subclass, short = false) {
+    if (short) {
+        if (subclass.shortName)
+            return subclass.shortName
+
+        const match = subclass.name.match(/\[(.+)\]/)
+
+        if (match)
+            return match[1]
+    }
+
+    return subclass.name.replace(/[[\]]/g, '')
+}
+
 export const MAX_LEVEL_COUNT = 20
 
 export const CLASSES = {
@@ -36,6 +58,7 @@ export const CLASSES = {
             mediumArmorProficiency: true,
         },
         subclassLevel: 3,
+        subclassType: 'Primal Path',
         subclasses: {
             ancestral: {
                 name: 'Path of the Ancestral [Guardian]',
@@ -67,6 +90,7 @@ export const CLASSES = {
             spellcasting: true,
         },
         subclassLevel: 3,
+        subclassType: 'Bard College',
         subclasses: {
             glamour: {
                 name: 'College of [Glamour]',
@@ -93,12 +117,52 @@ export const CLASSES = {
         capabilities: {
             lightArmorProficiency: true,
             mediumArmorProficiency: true,
-            heavyArmorProficiency: false, // 1st level: Forge / Life / Nature / Tempest / Order
             spellcasting: true,
         },
         subclassLevel: 1,
+        subclassType: 'Divine Domain',
         subclasses: {
-
+            arcana: {
+                name: '[Arcana] Domain'
+            },
+            death: {
+                name: '[Death] Domain'
+            },
+            forge: {
+                name: '[Forge] Domain',
+                capabilities: { heavyArmorProficiency: true }
+            },
+            grave: {
+                name: '[Grave] Domain'
+            },
+            knowledge: {
+                name: '[Knowledge] Domain'
+            },
+            life: {
+                name: '[Life] Domain',
+                capabilities: { heavyArmorProficiency: true }
+            },
+            light: {
+                name: '[Light] Domain'
+            },
+            nature: {
+                name: '[Nature] Domain',
+                capabilities: { heavyArmorProficiency: true }
+            },
+            order: {
+                name: '[Order] Domain (UA)',
+                capabilities: { heavyArmorProficiency: true }
+            },
+            tempest: {
+                name: '[Tempest] Domain',
+                capabilities: { heavyArmorProficiency: true }
+            },
+            trickery: {
+                name: '[Trickery] Domain'
+            },
+            war: {
+                name: '[War] Domain'
+            },
         },
     },
     druid: {
@@ -109,9 +173,24 @@ export const CLASSES = {
             mediumArmorProficiency: true,
             spellcasting: true,
         },
-        subclassLevel: 0,
+        subclassLevel: 2,
+        subclassType: 'Druid Circle',
         subclasses: {
-
+            dreams: {
+                name: 'Circle of [Dreams]'
+            },
+            spores: {
+                name: 'Circle of [Spores] (UA)'
+            },
+            land: {
+                name: 'Circle of the [Land]'
+            },
+            moon: {
+                name: 'Circle of the [Moon]'
+            },
+            shepherd: {
+                name: 'Circle of the [Shepherd]'
+            },
         },
     },
     fighter: {
@@ -121,22 +200,72 @@ export const CLASSES = {
             lightArmorProficiency: true,
             mediumArmorProficiency: true,
             heavyArmorProficiency: true,
-            spellcasting: false, // 3rd level: Eldritch Knight
         },
-        subclassLevel: 0,
+        subclassLevel: 3,
+        subclassType: 'Martial Archetype',
         subclasses: {
-
+            arcanearcher: {
+                name: '[Arcane Archer]',
+                shortName: 'AA',
+            },
+            battlemaster: {
+                name: '[Battle Master]',
+                shortName: 'BM',
+            },
+            brute: {
+                name: '[Brute] (UA)'
+            },
+            cavalier: {
+                name: 'Cavalier'
+            },
+            champion: {
+                name: 'Champion'
+            },
+            eldritch: {
+                name: 'Eldritch Knight',
+                shortName: 'EK',
+                capabilities: { spellcasting: true }
+            },
+            purpledragon: {
+                name: 'Purple Dragon Knight',
+                shortName: 'PDK'
+            },
+            samurai: {
+                name: 'Samurai'
+            },
         },
     },
     monk: {
         name: 'Monk',
         color: '78c0d8',
-        capabilities: {
-            spellcasting: false, // 3rd level: Shadow(?) / Four Elements / Sun Soul(?)
-        },
-        subclassLevel: 0,
+        capabilities: {},
+        subclassLevel: 3,
+        subclassType: 'Monastic Tradition',
         subclasses: {
-
+            shadow: {
+                name: 'Way of [Shadow]',
+                capabilities: { spellcasting: true }
+            },
+            drunken: {
+                name: 'Way of the [Drunken] Master',
+                capabilities: { spellcasting: true }
+            },
+            fourelements: {
+                name: 'Way of the [Four Elements]',
+            },
+            kensei: {
+                name: 'Way of the [Kensei]',
+            },
+            longdeath: {
+                name: 'Way of the [Long Death]',
+            },
+            openhand: {
+                name: 'Way of the [Open Hand]',
+            },
+            sunsoul: {
+                name: 'Way of the [Sun Soul]',
+                capabilities: { spellcasting: true }
+            },
         },
     },
     paladin: {
@@ -146,11 +275,32 @@ export const CLASSES = {
             lightArmorProficiency: true,
             mediumArmorProficiency: true,
             heavyArmorProficiency: true,
-            spellcasting: false, // 2nd level
+            2: ['spellcasting'],
         },
-        subclassLevel: 0,
+        subclassLevel: 3,
+        subclassType: 'Sacred Oath',
         subclasses: {
-
+            conquest: {
+                name: 'Oath of [Conquest]'
+            },
+            devotion: {
+                name: 'Oath of [Devotion]'
+            },
+            redemption: {
+                name: 'Oath of [Redemption]'
+            },
+            ancients: {
+                name: 'Oath of the [Ancients]'
+            },
+            crown: {
+                name: 'Oath of the [Crown]'
+            },
+            vengeance: {
+                name: 'Oath of [Vengeance]'
+            },
+            oathbreaker: {
+                name: 'Oathbreaker'
+            },
         },
     },
     ranger: {
@@ -159,11 +309,26 @@ export const CLASSES = {
         capabilities: {
             lightArmorProficiency: true,
             mediumArmorProficiency: true,
-            spellcasting: false, // 2nd level
+            2: ['spellcasting'],
         },
-        subclassLevel: 0,
+        subclassLevel: 3,
+        subclassType: 'Ranger Archetype',
         subclasses: {
-
+            beastmaster: {
+                name: '[Beast] Master'
+            },
+            gloomstalker: {
+                name: '[Gloom] Stalker'
+            },
+            horizonwalker: {
+                name: '[Horizon] Walker'
+            },
+            hunter: {
+                name: 'Hunter'
+            },
+            monsterslayer: {
+                name: 'Monster [Slayer]'
+            },
         },
     },
     rogue: {
@@ -173,9 +338,32 @@ export const CLASSES = {
             lightArmorProficiency: true,
             spellcasting: false, // 3rd level: Arcane Trickster
         },
-        subclassLevel: 0,
+        subclassLevel: 3,
+        subclassType: 'Roguish Archetype',
         subclasses: {
-
+            arcanetrickster: {
+                name: 'Arcane Trickster',
+                shortName: 'AT',
+                capabilities: { spellcasting: true }
+            },
+            assassin: {
+                name: 'Assassin'
+            },
+            inquisitive: {
+                name: 'Inquisitive'
+            },
+            mastermind: {
+                name: 'Mastermind'
+            },
+            scout: {
+                name: 'Scout'
+            },
+            swashbuckler: {
+                name: 'Swashbuckler'
+            },
+            thief: {
+                name: 'Thief'
+            },
         },
     },
     sorcerer: {
@@ -184,9 +372,27 @@ export const CLASSES = {
         capabilities: {
             spellcasting: true,
         },
-        subclassLevel: 0,
+        subclassLevel: 1,
+        subclassType: 'Sorcerous Origin',
         subclasses: {
-
+            divine: {
+                name: '[Divine] Soul'
+            },
+            draconic: {
+                name: '[Draconic] Bloodline'
+            },
+            giant: {
+                name: '[Giant] Soul (UA)'
+            },
+            shadow: {
+                name: '[Shadow] Magic'
+            },
+            storm: {
+                name: '[Storm] Sorcery'
+            },
+            wild: {
+                name: '[Wild] Magic'
+            },
         },
     },
     warlock: {
@@ -194,24 +400,77 @@ export const CLASSES = {
         color: '7848a8',
         capabilities: {
             lightArmorProficiency: true,
-            mediumArmorProficiency: false, // 2nd level: Hexblade
             spellcasting: true,
         },
-        subclassLevel: 0,
+        subclassLevel: 1,
+        subclassType: 'Otherworldly Patron',
         subclasses: {
-
+            archfey: {
+                name: 'The [Archfey]'
+            },
+            celestial: {
+                name: 'The [Celestial]'
+            },
+            fiend: {
+                name: 'The [Fiend]'
+            },
+            goo: {
+                name: 'The Great Old One',
+                shortName: 'GOO'
+            },
+            hexblade: {
+                name: 'The [Hexblade]',
+                capabilities: { mediumArmorProficiency: true }
+            },
+            undying: {
+                name: 'The [Undying]'
+            },
         },
     },
     wizard: {
         name: 'Wizard',
         color: '4878c0',
         capabilities: {
-            lightArmorProficiency: false, // 2nd level: Bladesinging / School of Invention
             spellcasting: true,
         },
-        subclassLevel: 0,
+        subclassLevel: 2,
+        subclassType: 'Arcane Tradition',
         subclasses: {
-
+            bladesinging: {
+                name: 'Bladesinging',
+                capabilities: { lightArmorProficiency: true }
+            },
+            abjuration: {
+                name: 'School of [Abjuration]',
+            },
+            conjuration: {
+                name: 'School of [Conjuration]',
+            },
+            divination: {
+                name: 'School of [Divination]',
+            },
+            enchantment: {
+                name: 'School of [Enchantment]',
+            },
+            evocation: {
+                name: 'School of [Evocation]',
+            },
+            illusion: {
+                name: 'School of [Illusion]',
+            },
+            invention: {
+                name: 'School of [Invention] (UA)',
+                capabilities: { lightArmorProficiency: true }
+            },
+            necromancy: {
+                name: 'School of [Necromancy]',
+            },
+            transmutation: {
+                name: 'School of [Transmutation]',
+            },
+            war: {
+                name: '[War] Magic',
+            },
         },
     },
 }
@@ -797,6 +1056,22 @@ export const RACES = [
         asi: {
             [CHA]: 2,
             [INT]: 1
+        }
+    },
+    {
+        id: 'centaur',
+        name: 'Centaur (UA)',
+        asi: {
+            [STR]: 2,
+            [WIS]: 1,
+        }
+    },
+    {
+        id: 'minotaur',
+        name: 'Minotaur (UA)',
+        asi: {
+            [STR]: 2,
+            [CON]: 1,
         }
     },
 ].sort((a, b) => a.name.localeCompare(b.name))
