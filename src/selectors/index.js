@@ -431,16 +431,51 @@ export const availableClassesSelector = createSelector(
 
 export const levelCapabilitiesSelectorFactory = new CharacterLevelSelectorFactory(
   raceSelector,
+  state => state.subclasses,
   classLevelsSelectorFactory.fetch,
   levelFeaturesSelectorFactory.previous, // use the previous because otherwise selecting a feat
                                          // could update the available feats for the current level
-  (race, classLevel, previousLevelFeature, lowerLevelCapabilities, characterLevel) => {
+  (race, subclasses, classLevel, previousLevelFeature, lowerLevelCapabilities, characterLevel) => {
+    // console.log({ characterLevel, race, subclasses, classLevel, previousLevelFeature, lowerLevelCapabilities })
     const previousCapabilities = lowerLevelCapabilities ?
       lowerLevelCapabilities[characterLevel - 1] :
       {...(race || {}).capabilities}
 
+    const classCapabilities = {}
+    const _class = classLevel.class
+    const levelInClass = classLevel.classes[_class]
+
+    if (_class) {
+      const classCapabilitySources = []
+      const classInfo = CLASSES[_class]
+      classCapabilitySources.push(classInfo)
+
+      const subclassInfo = classInfo.subclasses[subclasses[_class]]
+      if (subclassInfo && levelInClass >= classInfo.subclassLevel)
+        classCapabilitySources.push(subclassInfo)
+
+      classCapabilitySources.forEach(classCapabilitySource => {
+        Object.entries(classCapabilitySource.capabilities)
+              .forEach(pair => {
+                const [key, value] = pair
+                const requiredLevel = parseInt(key, 10)
+                if (Number.isFinite(requiredLevel)) {
+                  if (levelInClass >= requiredLevel) {
+                    const capabilityKeys = Array.isArray(value) ? value : [value]
+                    capabilityKeys.forEach(k => classCapabilities[k] = true)
+                  }
+                } else {
+                  if (value)
+                    classCapabilities[key] = true
+                }
+              })
+      })
+    }
+
+
     const capabilities = {
       ...previousCapabilities,
+      ...classCapabilities,
       ...(previousLevelFeature ? previousLevelFeature.capabilities : null)
     }
 
