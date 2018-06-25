@@ -37,6 +37,7 @@ class RolledAbilitiesRow extends Component {
         </td>
         {ABILITIES.map(a => <td key={a}>
             <input value={this.props.abilities[a]}
+                   id={`rar-field-${a}`}
                    type='number'
                    max={18}
                    min={3}

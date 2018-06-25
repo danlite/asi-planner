@@ -63,7 +63,7 @@ class App extends Component {
               <th></th>
               <th></th>
               <th></th>
-              {ABILITIES.map(a => <th key={a}>{a}</th>)}
+              {ABILITIES.map(a => <th key={a}><label htmlFor={`rar-field-${a}`}>{a}</label></th>)}
             </tr>
           </thead>
           <tbody>
