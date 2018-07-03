@@ -451,7 +451,7 @@ export const levelCapabilitiesSelectorFactory = new CharacterLevelSelectorFactor
       classCapabilitySources.push(classInfo)
 
       const subclassInfo = classInfo.subclasses[subclasses[_class]]
-      if (subclassInfo && levelInClass >= classInfo.subclassLevel)
+      if (subclassInfo && subclassInfo.capabilities && levelInClass >= classInfo.subclassLevel)
         classCapabilitySources.push(subclassInfo)
 
       classCapabilitySources.forEach(classCapabilitySource => {
