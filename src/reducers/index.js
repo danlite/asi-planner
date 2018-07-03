@@ -66,6 +66,7 @@ function levelFeature(state = null, action) {
         case SELECT_ASI:
         return {
             type: 'asi',
+            id: 'asi',
             asi: {
                 'other': 2,
             },

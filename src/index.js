@@ -4,22 +4,20 @@ import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import { Provider } from 'react-redux'
-import { createStore, applyMiddleware } from 'redux'
+import { createStore, applyMiddleware, compose } from 'redux'
+import persistState from 'redux-localstorage'
 import logger from 'redux-logger'
 import plannerApp from './reducers'
 
 import { RESET_CHARACTER_CLASS, SET_RACE } from './actions'
 
-
 // import { displayClassProgression } from './reducers'
 // window.displayClassProgression = displayClassProgression
 
 const middleware = false ? applyMiddleware(logger) : undefined
+const enhancer = middleware ? compose(middleware, persistState()) : persistState()
 
-const store = createStore(
-    plannerApp,
-    middleware
-)
+const store = createStore(plannerApp, enhancer)
 
 const startup = false
 if (startup) {
