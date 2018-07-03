@@ -500,7 +500,7 @@ export const availableFeatsSelector = createSelector(
     sortByCharacterLevel(classLevels).forEach(level => {
       const { characterLevel } = level
       const firstLevel = characterLevel === 1
-      const chosenFeatIds = levelChosenFeatIds[characterLevel]
+      const chosenFeatIds = levelChosenFeatIds[20] // get all chosen feats
 
       const abilityScores = firstLevel ? startingAbilityScores : levelAbilityScores[characterLevel - 1]
       const capabilities = levelCapabilities[characterLevel]
