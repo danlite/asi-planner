@@ -42,6 +42,7 @@ class RolledAbilitiesRow extends Component {
                 <Input value={Number.isFinite(value) ? value : ''}
                        id={`rar-field-${a}`}
                        type='number'
+                       fluid
                        max={18}
                        min={3}
                        onChange={e => this.props.handleChange(e, a)} />
