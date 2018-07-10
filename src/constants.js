@@ -639,7 +639,7 @@ export const RACES = [
         },
         asi: {
             [CON]: 2,
-            [STR]: 1
+            [STR]: 2
         }
     },
     {
