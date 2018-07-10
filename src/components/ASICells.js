@@ -1,12 +1,12 @@
 import React, { Component, Fragment } from 'react'
 import { Dropdown } from 'semantic-ui-react'
+import { MobileViewport, DefaultViewport } from './Responsive'
 import { ABILITIES, formatModifier } from '../constants'
 
 class ASICells extends Component {
     render() {
-        const { feature, availableAbilities, handleAbilityChange } = this.props
         return <Fragment>
-            {ABILITIES.map(a => <ASICell ability={a} {...this.props} />)}
+            {ABILITIES.map(a => <ASICell key={a} ability={a} {...this.props} />)}
         </Fragment>
     }
 }
@@ -28,10 +28,25 @@ class ASICell extends Component {
                 feature.asi[a] ?
                     formatModifier(feature.asi[a]) :
                     (availableAbilities && availableAbilities[a].length) ?
-                        <Dropdown fluid selection value={feature.selectedAbilities[a] || ''}
-                                  onChange={(e, data) => handleAbilityChange(data.value, a)}
-                                  options={shorthandIncreaseItems}
-                        /> : // ASIs are available generally and specifically for this ability
+                        <Fragment>
+                            <DefaultViewport>
+                                <Dropdown fluid selection value={feature.selectedAbilities[a] || ''}
+                                          onChange={(e, data) => handleAbilityChange(data.value, a)}
+                                          options={shorthandIncreaseItems}
+                                />
+                            </DefaultViewport>
+                            <MobileViewport>
+                                <select value={feature.selectedAbilities[a] || ''}
+                                        onChange={e => handleAbilityChange(e.target.value, a)}>
+                                    <option value=''></option>
+                                    {availableAbilities && availableAbilities[a].map(increase =>
+                                        <option value={increase} key={increase}>
+                                            {formatModifier(increase)}
+                                        </option>
+                                    )}
+                                </select>
+                            </MobileViewport>
+                        </Fragment> : // ASIs are available generally and specifically for this ability
                     null : // feature has no ASI for this ability
                 null // no feature or feature has no ASIs
             }

@@ -15,10 +15,10 @@ const mapDispatchToProps = dispatch => {
         handleChange: (event, ability) => {
             var value = event.target.value
 
-            if (!value)
-                return
-
             value = parseInt(value, 10)
+
+            if (Number.isNaN(value))
+              value = null
 
             dispatch({
                 type: SET_ROLLED_ABILITY,
@@ -36,14 +36,17 @@ class RolledAbilitiesRow extends Component {
         <td colSpan={3} style={{ textAlign: 'right' }}>
             Rolled ability scores:
         </td>
-        {ABILITIES.map(a => <td key={a}>
-            <Input value={this.props.abilities[a]}
-                   id={`rar-field-${a}`}
-                   type='number'
-                   max={18}
-                   min={3}
-                   onChange={e => this.props.handleChange(e, a)} />
-        </td>)}
+        {ABILITIES.map(a => {
+            const value = this.props.abilities[a]
+            return <td key={a}>
+                <Input value={Number.isFinite(value) ? value : ''}
+                       id={`rar-field-${a}`}
+                       type='number'
+                       max={18}
+                       min={3}
+                       onChange={e => this.props.handleChange(e, a)} />
+            </td>
+        })}
       </tr>
     )
   }

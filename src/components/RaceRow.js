@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Dropdown } from 'semantic-ui-react'
+import { MobileViewport, DefaultViewport } from './Responsive'
 import { GROUPED_RACES } from '../constants'
 import {
     SET_RACE,
@@ -20,7 +21,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
     return {
         handleRaceChange: (event, data) => {
-            const race = data.value || null
+            const race = (data ? data.value : event.target.value) || null
             dispatch({
                 type: SET_RACE,
                 race: race
@@ -54,13 +55,33 @@ class RaceRow extends Component {
 
     return (
       <tr className="RaceRow">
-        <td/>
-        <td colSpan={2}>
-            <Dropdown placeholder='Chose race:' fluid search selection
-                      options={shorthandRaceItems}
-                      value={race ? race.id : ''}
-                      selectOnBlur={false}
-                      onChange={this.props.handleRaceChange} />
+        <td colSpan={3}>
+            <DefaultViewport>
+                <Dropdown placeholder='Chose race:' fluid search selection
+                          options={shorthandRaceItems}
+                          value={race ? race.id : ''}
+                          selectOnBlur={false}
+                          onChange={this.props.handleRaceChange} />
+            </DefaultViewport>
+            <MobileViewport>
+                <select value={race ? race.id : ''}
+                                    onChange={this.props.handleRaceChange}
+                                    style={{ fontStyle: race ? 'normal' : 'italic' }}>
+                    <option value='' disabled>Choose race:</option>
+                    {GROUPED_RACES.map(group => {
+                        if (Array.isArray(group.races)) {
+                            return <optgroup label={group.familyName} key={group.familyName}>
+                                {group.races.map(r => <option value={r.id} key={r.id}>{r.name}</option>)}
+                            </optgroup>
+                        } else {
+                            const race = group.races
+                            return <option value={race.id} key={race.id}>
+                                {race.name}
+                            </option>
+                        }
+                    })}
+                </select>
+            </MobileViewport>
         </td>
         <ASICells {...{ feature: race, availableAbilities, handleAbilityChange }} />
       </tr>

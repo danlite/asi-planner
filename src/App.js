@@ -50,14 +50,14 @@ class App extends Component {
   }
 
   render() {
-    const { classLevels, resetClass, resetAll, finalAbilityScores, setSubclass, chosenSubclasses, started, multiclassing } = this.props
+    const { classLevels, resetClass, resetAll, finalAbilityScores, setSubclass, chosenSubclasses, started } = this.props
     const initialLevel = classLevels[1]
     const lastLevel = classLevels[MAX_LEVEL_COUNT]
 
     return (
       <div className={['App ui container', this.state.compact ? 'compact' : ''].join(' ')}>
         {started ? <div>
-            <table>
+            <table className='main-table'>
               <thead>
                 <tr>
                   <th></th>

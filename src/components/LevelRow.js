@@ -1,7 +1,8 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
-import { Dropdown } from 'semantic-ui-react'
-import { CLASSES, FEATS } from '../constants'
+import { MobileViewport, DefaultViewport } from './Responsive'
+import { Dropdown, Popup } from 'semantic-ui-react'
+import { CLASSES, FEATS, ABILITIES } from '../constants'
 import { SELECT_LEVEL_FEATURE_ABILITY, SELECT_FEAT, SELECT_ASI, REMOVE_LEVEL_FEATURE, SET_CHARACTER_LEVEL_CLASS } from '../actions'
 import {
   featureAvailableAbilitiesSelector,
@@ -14,7 +15,6 @@ import {
   isMulticlassing,
 } from '../selectors'
 import ASICells from './ASICells'
-import LevelAbilityScoreCells from './LevelAbilityScoreCells'
 
 const mapStateToProps = (state, ownProps) => {
     const feature = state.levelFeatures[ownProps.level.characterLevel]
@@ -34,7 +34,7 @@ const mapStateToProps = (state, ownProps) => {
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
     handleTypeChange: (event, data) => {
-      const value = data.value
+      const value = data ? data.value : event.target.value
       if (!value) {
         dispatch({
             type: REMOVE_LEVEL_FEATURE,
@@ -64,7 +64,7 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     handleClassChange: (event, data) => {
       dispatch({
         type: SET_CHARACTER_LEVEL_CLASS,
-        class: data.value,
+        class: data ? data.value : event.target.value,
         level: ownProps.level.characterLevel,
       })
     },
@@ -72,6 +72,12 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 }
 
 class LevelRow extends Component {
+  state = { tooltipOpen: false }
+  toggleTooltip = show => this.setState({ tooltipOpen: show })
+  showTooltip = () => this.toggleTooltip(true)
+  hideTooltip = () => this.toggleTooltip(false)
+  handleRowRef = node => this.setState({ row: node })
+
   render() {
     const {
       feature,
@@ -85,9 +91,10 @@ class LevelRow extends Component {
       handleAbilityChange,
       handleClassChange,
       formattedClassLevels,
-      multiclassing,
       compact,
     } = this.props
+
+    const { tooltipOpen, row } = this.state
 
     var selectLabelWords = []
     if (level.asi)
@@ -117,32 +124,71 @@ class LevelRow extends Component {
 
     const shorthandClassItems = Object.keys(CLASSES).map(c => ({ value: c, text: CLASSES[c].name, disabled: !availableClasses.includes(c) }))
 
+    const tooltipContent = <div>
+      {formattedClassLevels}
+      <br/>
+      <table>
+        <tbody>
+          <tr>{ABILITIES.map(a => <th key={a}>{a}</th>)}</tr>
+          <tr>{ABILITIES.map(a => <td key={a}>{abilityScores[a]}</td>)}</tr>
+        </tbody>
+      </table>
+    </div>
+
     return (
-      <tr className={['LevelRow', collapsibleAnchorLevel ? 'collapsible' : ''].join(' ')}>
-        <td style={{ color: 'white', backgroundColor: `#${CLASSES[level.class].color}` }}
-            title={formattedClassLevels}
-        >
+      <tr className={['LevelRow', collapsibleAnchorLevel ? 'collapsible' : ''].join(' ')}
+          ref={this.handleRowRef}
+          onMouseOver={this.showTooltip}
+          onMouseOut={this.hideTooltip}>
+        <td style={{ color: 'white', backgroundColor: `#${CLASSES[level.class].color}` }}>
           <span className='collapsible'>{level.characterLevel}</span>
           <span className='collapsed'>{collapsedLevelLabel}</span>
         </td>
         <td>
-          {!compact && <Dropdown fluid
-                                 selection
-                                 value={level.class}
-                                 onChange={handleClassChange}
-                                 options={shorthandClassItems} />}
+          {!compact && <Fragment>
+            <DefaultViewport>
+              <Dropdown fluid selection
+                        value={level.class}
+                        onChange={handleClassChange}
+                        options={shorthandClassItems} />
+            </DefaultViewport>
+            <MobileViewport>
+              <select value={level.class} onChange={handleClassChange}>
+                {Object.keys(CLASSES).map(c => <option key={c} value={c} disabled={!availableClasses.includes(c)}>
+                  {CLASSES[c].name}
+                </option>)}
+              </select>
+            </MobileViewport>
+          </Fragment>}
         </td>
         <td>{level.asi || level.feat ?
-          <Dropdown placeholder={featurePlaceholderText} fluid search selection
-                    options={shorthandFeatureItems}
-                    value={feature ? feature.id : ''}
-                    onChange={this.props.handleTypeChange}
-                    selectOnBlur={false}
-          />:
+          <Fragment>
+            <DefaultViewport>
+              <Dropdown placeholder={featurePlaceholderText} fluid search selection
+                        options={shorthandFeatureItems}
+                        value={feature ? feature.id : ''}
+                        onChange={this.props.handleTypeChange}
+                        selectOnBlur={false}
+              />
+            </DefaultViewport>
+            <MobileViewport>
+              <select value={feature ? feature.id : ''}
+                      onChange={this.props.handleTypeChange}
+                      style={{ fontStyle: feature ? 'normal' : 'italic' }}>
+                <option value=''>Choose {selectLabelWords.join(' or ')}:</option>
+                {level.asi && <option value='asi'>ASI</option>}
+                {feature && feature.type === 'feat' && <option value={feature.id}>{feature.name}</option>}
+                {availableFeats.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+              </select>
+            </MobileViewport>
+          </Fragment>:
           null
         }</td>
         {<ASICells {...{ feature, availableAbilities, handleAbilityChange }} />}
-        {<LevelAbilityScoreCells abilityScores={abilityScores} />}
+        <Popup context={row}
+               content={tooltipContent}
+               wide position='right center'
+               open={tooltipOpen} />
       </tr>
     )
   }

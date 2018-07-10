@@ -58,6 +58,17 @@ tr:hover td.visible-on-row-hover {
   width: 100%;
 }
 
+.App .main-table {
+  width: 75%;
+}
+
+@media(max-width: 767px) {
+  .App .main-table {
+    width: 100%;
+  }
+}
+
+
 .ClassMenu {
   display: flex;
   flex-wrap: wrap;
