@@ -52,7 +52,7 @@ export const MAX_LEVEL_COUNT = 20
 export const CLASSES = {
     barbarian: {
         name: 'Barbarian',
-        color: 'd87860',
+        color: 'e5623e',
         capabilities: {
             lightArmorProficiency: true,
             mediumArmorProficiency: true,
@@ -84,7 +84,7 @@ export const CLASSES = {
     },
     bard: {
         name: 'Bard',
-        color: 'a878a8',
+        color: 'aa6dab',
         capabilities: {
             lightArmorProficiency: true,
             spellcasting: true,
@@ -113,7 +113,7 @@ export const CLASSES = {
     },
     cleric: {
         name: 'Cleric',
-        color: '909090',
+        color: '92a2b3',
         capabilities: {
             lightArmorProficiency: true,
             mediumArmorProficiency: true,
@@ -167,7 +167,7 @@ export const CLASSES = {
     },
     druid: {
         name: 'Druid',
-        color: '909060',
+        color: '79853c',
         capabilities: {
             lightArmorProficiency: true,
             mediumArmorProficiency: true,
@@ -195,7 +195,7 @@ export const CLASSES = {
     },
     fighter: {
         name: 'Fighter',
-        color: '604830',
+        color: '7e4f3d',
         capabilities: {
             lightArmorProficiency: true,
             mediumArmorProficiency: true,
@@ -237,7 +237,7 @@ export const CLASSES = {
     },
     monk: {
         name: 'Monk',
-        color: '78c0d8',
+        color: '53a5c5',
         capabilities: {},
         subclassLevel: 3,
         subclassType: 'Monastic Tradition',
@@ -270,7 +270,7 @@ export const CLASSES = {
     },
     paladin: {
         name: 'Paladin',
-        color: 'c0a860',
+        color: 'b59e54',
         capabilities: {
             lightArmorProficiency: true,
             mediumArmorProficiency: true,
@@ -305,7 +305,7 @@ export const CLASSES = {
     },
     ranger: {
         name: 'Ranger',
-        color: '487860',
+        color: '4f7e61',
         capabilities: {
             lightArmorProficiency: true,
             mediumArmorProficiency: true,
@@ -333,7 +333,7 @@ export const CLASSES = {
     },
     rogue: {
         name: 'Rogue',
-        color: '484848',
+        color: '555752',
         capabilities: {
             lightArmorProficiency: true,
             spellcasting: false, // 3rd level: Arcane Trickster
@@ -368,7 +368,7 @@ export const CLASSES = {
     },
     sorcerer: {
         name: 'Sorcerer',
-        color: 'c06060',
+        color: '972e2e',
         capabilities: {
             spellcasting: true,
         },
@@ -397,7 +397,7 @@ export const CLASSES = {
     },
     warlock: {
         name: 'Warlock',
-        color: '7848a8',
+        color: '8137af',
         capabilities: {
             lightArmorProficiency: true,
             spellcasting: true,
@@ -429,7 +429,7 @@ export const CLASSES = {
     },
     wizard: {
         name: 'Wizard',
-        color: '4878c0',
+        color: '0045b7',
         capabilities: {
             spellcasting: true,
         },

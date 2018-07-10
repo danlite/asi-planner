@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { Dropdown } from 'semantic-ui-react'
 import { GROUPED_RACES } from '../constants'
 import {
     SET_RACE,
@@ -18,19 +19,18 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        handleRaceChange: event => {
-            const race = event.target.value || null
+        handleRaceChange: (event, data) => {
+            const race = data.value || null
             dispatch({
                 type: SET_RACE,
                 race: race
             })
         },
-        handleAbilityChange: (event, ability) => {
-            const increase = event.target.value || null
+        handleAbilityChange: (value, ability) => {
             dispatch({
                 type: SELECT_RACE_ABILITY,
                 key: ability,
-                value: increase
+                value: value || null
             })
         }
     }
@@ -40,28 +40,27 @@ class RaceRow extends Component {
   render() {
     const { race, availableAbilities, handleAbilityChange } = this.props
 
+    const shorthandRaceItems = GROUPED_RACES.reduce((accumulated, group) => {
+        if (Array.isArray(group.races)) {
+            // accumulated.push()
+            group.races.forEach(r => accumulated.push({ text: r.name, value: r.id }))
+        } else {
+            const race = group.races
+            accumulated.push({ text: race.name, value: race.id })
+        }
+
+        return accumulated
+    }, [])
+
     return (
       <tr className="RaceRow">
         <td/>
         <td colSpan={2}>
-            <select value={race ? race.id : ''}
-                    onChange={this.props.handleRaceChange}
-                    style={{ fontStyle: race ? 'normal' : 'italic' }}
-            >
-                <option value='' disabled>Choose race:</option>
-                {GROUPED_RACES.map(group => {
-                    if (Array.isArray(group.races)) {
-                        return <optgroup label={group.familyName} key={group.familyName}>
-                            {group.races.map(r => <option value={r.id} key={r.id}>{r.name}</option>)}
-                        </optgroup>
-                    } else {
-                        const race = group.races
-                        return <option value={race.id} key={race.id}>
-                            {race.name}
-                        </option>
-                    }
-                })}
-            </select>
+            <Dropdown placeholder='Chose race:' fluid search selection
+                      options={shorthandRaceItems}
+                      value={race ? race.id : ''}
+                      selectOnBlur={false}
+                      onChange={this.props.handleRaceChange} />
         </td>
         <ASICells {...{ feature: race, availableAbilities, handleAbilityChange }} />
       </tr>

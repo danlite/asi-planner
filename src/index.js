@@ -14,8 +14,13 @@ import { RESET_CHARACTER_CLASS, SET_RACE } from './actions'
 // import { displayClassProgression } from './reducers'
 // window.displayClassProgression = displayClassProgression
 
-const middleware = false ? applyMiddleware(logger) : undefined
-const enhancer = middleware ? compose(middleware, persistState()) : persistState()
+const middleware = false ?
+    applyMiddleware(logger) :
+    undefined
+
+const enhancer = true ?
+    middleware ? compose(middleware, persistState()) : persistState() :
+    undefined
 
 const store = createStore(plannerApp, enhancer)
 

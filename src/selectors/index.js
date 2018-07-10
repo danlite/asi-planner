@@ -486,28 +486,42 @@ export const levelCapabilitiesSelectorFactory = new CharacterLevelSelectorFactor
   }
 )
 
-export const availableFeatsSelector = createSelector(
+export const validFeatsSelector = createSelector(
   allFeatsSelector,
   levelAbilityScoresSelectorFactory.final,
-  chosenFeatsSelectorFactory.final,
   levelCapabilitiesSelectorFactory.final,
   startingAbilityScoresSelector,
   raceSelector,
   classLevelsSelectorFactory.final,
-  (allFeats, levelAbilityScores, levelChosenFeatIds, levelCapabilities, startingAbilityScores, race, classLevels) => {
-    const availableFeats = {}
+  (allFeats, levelAbilityScores, levelCapabilities, startingAbilityScores, race, classLevels) => {
+    const validFeats = {}
 
     sortByCharacterLevel(classLevels).forEach(level => {
       const { characterLevel } = level
       const firstLevel = characterLevel === 1
-      const chosenFeatIds = levelChosenFeatIds[20] // get all chosen feats
 
       const abilityScores = firstLevel ? startingAbilityScores : levelAbilityScores[characterLevel - 1]
       const capabilities = levelCapabilities[characterLevel]
 
-      availableFeats[characterLevel] = allFeats.filter(f => {
-        return featMeetsPrerequisite(f.id, { race, abilityScores, capabilities }) && !chosenFeatIds.includes(f.id)
+      validFeats[characterLevel] = allFeats.filter(f => {
+        return featMeetsPrerequisite(f.id, { race, abilityScores, capabilities })
       })
+    })
+
+    return validFeats
+  }
+)
+
+export const availableFeatsSelector = createSelector(
+  validFeatsSelector,
+  chosenFeatsSelectorFactory.final,
+  classLevelsSelectorFactory.final,
+  (validFeats, levelChosenFeatIds, classLevels) => {
+    const availableFeats = {}
+    const chosenFeatIds = levelChosenFeatIds[20] // get all chosen feats
+
+    Object.keys(validFeats).forEach(characterLevel => {
+      availableFeats[characterLevel] = validFeats[characterLevel].filter(f => !chosenFeatIds.includes(f.id))
     })
 
     return availableFeats
@@ -538,5 +552,25 @@ export const formattedClassLevelsSelectorFactory = new CharacterLevelSelectorFac
       ...lowerLevelResults,
       [characterLevel]: formatted
     }
+  }
+)
+
+export const isStartedSelector = createSelector(
+  classLevelsSelectorFactory.final,
+  (classLevels) => {
+    const firstLevel = classLevels[1]
+    return !!firstLevel.class
+  }
+)
+
+export const isMulticlassing = createSelector(
+  classLevelsSelectorFactory.final,
+  (classLevels) => {
+    for (var i = 2; i < MAX_LEVEL_COUNT; i++) {
+      if (classLevels[i].class !== classLevels[i - 1].class)
+        return true
+    }
+
+    return false
   }
 )

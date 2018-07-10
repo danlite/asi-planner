@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { Input } from 'semantic-ui-react'
 import { ABILITIES } from '../constants'
 import { SET_ROLLED_ABILITY } from '../actions'
 
@@ -32,11 +33,11 @@ class RolledAbilitiesRow extends Component {
   render() {
     return (
       <tr className="RolledAbilitiesRow">
-        <td colSpan={3}>
+        <td colSpan={3} style={{ textAlign: 'right' }}>
             Rolled ability scores:
         </td>
         {ABILITIES.map(a => <td key={a}>
-            <input value={this.props.abilities[a]}
+            <Input value={this.props.abilities[a]}
                    id={`rar-field-${a}`}
                    type='number'
                    max={18}

@@ -1,6 +1,6 @@
 {
   "name": "asi-planner",
-  "homepage": "http://danlite.github.io/asi-planner",
+  "homepage": "https://asi.4d6k3.com",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -11,7 +11,10 @@
     "redux": "^4.0.0",
     "redux-localstorage": "^0.4.1",
     "redux-logger": "^3.0.6",
-    "reselect": "^3.0.1"
+    "reselect": "^3.0.1",
+    "semantic-ui-react": "^0.82.0",
+    "styled-components": "^3.3.3",
+    "tinycolor2": "^1.4.1"
   },
   "scripts": {
     "start": "react-scripts start",

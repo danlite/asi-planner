@@ -15,6 +15,7 @@ import {
     SET_CHARACTER_LEVEL_CLASS,
     RESET_CHARACTER_CLASS,
     SET_CLASS_SUBCLASS,
+    RESET_ALL,
 } from '../actions'
 import { classLevelsSelectorFactory } from '../selectors'
 
@@ -31,6 +32,9 @@ const INITIAL_CLASS_PROGRESSION = new Array(MAX_LEVEL_COUNT)
 
 function classProgression(state = INITIAL_CLASS_PROGRESSION, action) {
     switch (action.type) {
+        case RESET_ALL:
+        return INITIAL_CLASS_PROGRESSION
+
         case SET_CHARACTER_LEVEL_CLASS:
         if (action.class > MAX_LEVEL_COUNT || action.class < 1)
             return state
@@ -53,8 +57,12 @@ function classProgression(state = INITIAL_CLASS_PROGRESSION, action) {
 
 function rolledAbilities(state = INITIAL_ROLLED_ABILITIES, action) {
     switch (action.type) {
+        case RESET_ALL:
+        return INITIAL_ROLLED_ABILITIES
+
         case SET_ROLLED_ABILITY:
         return { ...state, [action.key]: action.value }
+
         default:
         return state
     }
@@ -62,6 +70,9 @@ function rolledAbilities(state = INITIAL_ROLLED_ABILITIES, action) {
 
 function levelFeature(state = null, action) {
     switch (action.type) {
+        case RESET_ALL:
+        return null
+
         case ADD_LEVEL_FEATURE:
         case SELECT_ASI:
         return {
@@ -101,6 +112,9 @@ function levelFeatures(state = {}, action, classLevels = {}) {
     const { level } = action
 
     switch (action.type) {
+        case RESET_ALL:
+        return {}
+
         case SELECT_LEVEL_FEATURE_ABILITY:
         case SELECT_FEAT:
         case SELECT_ASI:
@@ -146,6 +160,9 @@ function levelFeatures(state = {}, action, classLevels = {}) {
 
 function race(state = null, action) {
     switch (action.type) {
+        case RESET_ALL:
+        return null
+
         case SET_RACE:
         const race = RACES.find(r => r.id === action.race)
         return race ? {
@@ -167,6 +184,9 @@ function race(state = null, action) {
 
 function subclasses(state = {}, action) {
     switch (action.type) {
+        case RESET_ALL:
+        return {}
+
         case SET_CLASS_SUBCLASS:
         return {
             ...state,

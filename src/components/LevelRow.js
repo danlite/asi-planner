@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import { Dropdown } from 'semantic-ui-react'
 import { CLASSES, FEATS } from '../constants'
 import { SELECT_LEVEL_FEATURE_ABILITY, SELECT_FEAT, SELECT_ASI, REMOVE_LEVEL_FEATURE, SET_CHARACTER_LEVEL_CLASS } from '../actions'
 import {
@@ -10,6 +11,7 @@ import {
   collapsibleLevelsSelector,
   availableClassesSelector,
   formattedClassLevelsSelectorFactory,
+  isMulticlassing,
 } from '../selectors'
 import ASICells from './ASICells'
 import LevelAbilityScoreCells from './LevelAbilityScoreCells'
@@ -18,6 +20,7 @@ const mapStateToProps = (state, ownProps) => {
     const feature = state.levelFeatures[ownProps.level.characterLevel]
     return {
         feature,
+        multiclassing: isMulticlassing(state),
         collapsedLevels: collapsedLevelsSelector(state)[ownProps.level.characterLevel],
         collapsibleAnchorLevel: collapsibleLevelsSelector(state)[ownProps.level.characterLevel],
         availableFeats: availableFeatsSelector(state)[ownProps.level.characterLevel],
@@ -30,8 +33,8 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    handleTypeChange: e => {
-      const value = e.target.value
+    handleTypeChange: (event, data) => {
+      const value = data.value
       if (!value) {
         dispatch({
             type: REMOVE_LEVEL_FEATURE,
@@ -50,18 +53,18 @@ const mapDispatchToProps = (dispatch, ownProps) => {
         })
       }
     },
-    handleAbilityChange: (event, ability) => {
+    handleAbilityChange: (value, ability) => {
       dispatch({
         type: SELECT_LEVEL_FEATURE_ABILITY,
         level: ownProps.level.characterLevel,
         key: ability,
-        value: event.target.value,
+        value: value,
       })
     },
-    handleClassChange: event => {
+    handleClassChange: (event, data) => {
       dispatch({
         type: SET_CHARACTER_LEVEL_CLASS,
-        class: event.target.value,
+        class: data.value,
         level: ownProps.level.characterLevel,
       })
     },
@@ -81,7 +84,9 @@ class LevelRow extends Component {
       collapsibleAnchorLevel,
       handleAbilityChange,
       handleClassChange,
-      formattedClassLevels
+      formattedClassLevels,
+      multiclassing,
+      compact,
     } = this.props
 
     var selectLabelWords = []
@@ -97,6 +102,21 @@ class LevelRow extends Component {
     if (!level.class)
       return null
 
+    const featurePlaceholderText = `Choose ${selectLabelWords.join(' or ')}:`
+    let shorthandFeatureItems = [
+      { value: '', text: featurePlaceholderText, disabled: true }
+    ]
+
+    if (level.asi)
+      shorthandFeatureItems.push({ value: 'asi', text: 'ASI' })
+
+    if (feature && feature.type === 'feat')
+      shorthandFeatureItems.push({ value: feature.id, text: feature.name })
+
+    shorthandFeatureItems = shorthandFeatureItems.concat(availableFeats.map(f => ({ value: f.id, text: f.name })))
+
+    const shorthandClassItems = Object.keys(CLASSES).map(c => ({ value: c, text: CLASSES[c].name, disabled: !availableClasses.includes(c) }))
+
     return (
       <tr className={['LevelRow', collapsibleAnchorLevel ? 'collapsible' : ''].join(' ')}>
         <td style={{ color: 'white', backgroundColor: `#${CLASSES[level.class].color}` }}
@@ -106,22 +126,19 @@ class LevelRow extends Component {
           <span className='collapsed'>{collapsedLevelLabel}</span>
         </td>
         <td>
-          <select value={level.class} onChange={handleClassChange}>
-            {Object.keys(CLASSES).map(c => <option key={c} value={c} disabled={!availableClasses.includes(c)}>
-              {CLASSES[c].name}
-            </option>)}
-          </select>
+          {!compact && <Dropdown fluid
+                                 selection
+                                 value={level.class}
+                                 onChange={handleClassChange}
+                                 options={shorthandClassItems} />}
         </td>
         <td>{level.asi || level.feat ?
-          <select value={feature ? feature.id : ''}
-                  onChange={this.props.handleTypeChange}
-                  style={{ fontStyle: feature ? 'normal' : 'italic' }}
-          >
-            <option value=''>Choose {selectLabelWords.join(' or ')}:</option>
-            {level.asi && <option value='asi'>ASI</option>}
-            {feature && feature.type === 'feat' && <option value={feature.id}>{feature.name}</option>}
-            {availableFeats.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-          </select> :
+          <Dropdown placeholder={featurePlaceholderText} fluid search selection
+                    options={shorthandFeatureItems}
+                    value={feature ? feature.id : ''}
+                    onChange={this.props.handleTypeChange}
+                    selectOnBlur={false}
+          />:
           null
         }</td>
         {<ASICells {...{ feature, availableAbilities, handleAbilityChange }} />}

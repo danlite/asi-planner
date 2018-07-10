@@ -1,5 +1,4 @@
 .App {
-  text-align: center;
 }
 
 .App-logo {
@@ -51,6 +50,18 @@ tr:hover td.visible-on-row-hover {
   font-size: 0.9em;
 }
 
+.App table {
+  text-align: center;
+}
+
 .App td select {
   width: 100%;
+}
+
+.ClassMenu {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  padding-right: 5px;
+  padding-bottom: 5px;
 }
