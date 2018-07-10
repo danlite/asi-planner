@@ -60,11 +60,16 @@ tr:hover td.visible-on-row-hover {
 
 .App .main-table {
   width: 75%;
+  user-select: none;
 }
 
 @media(max-width: 767px) {
   .App .main-table {
     width: 100%;
+  }
+
+  .App .ui.form select {
+    -webkit-appearance: none;
   }
 }
 

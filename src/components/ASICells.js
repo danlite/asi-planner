@@ -35,16 +35,18 @@ class ASICell extends Component {
                                           options={shorthandIncreaseItems}
                                 />
                             </DefaultViewport>
-                            <MobileViewport>
-                                <select value={feature.selectedAbilities[a] || ''}
-                                        onChange={e => handleAbilityChange(e.target.value, a)}>
-                                    <option value=''></option>
-                                    {availableAbilities && availableAbilities[a].map(increase =>
-                                        <option value={increase} key={increase}>
-                                            {formatModifier(increase)}
-                                        </option>
-                                    )}
-                                </select>
+                            <MobileViewport className='ui form'>
+                                <div className='field'>
+                                    <select value={feature.selectedAbilities[a] || ''}
+                                            onChange={e => handleAbilityChange(e.target.value, a)}>
+                                        <option value=''></option>
+                                        {availableAbilities && availableAbilities[a].map(increase =>
+                                            <option value={increase} key={increase}>
+                                                {formatModifier(increase)}
+                                            </option>
+                                        )}
+                                    </select>
+                                </div>
                             </MobileViewport>
                         </Fragment> : // ASIs are available generally and specifically for this ability
                     null : // feature has no ASI for this ability

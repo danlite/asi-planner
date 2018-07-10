@@ -118,16 +118,20 @@ class App extends Component {
                       {classInfo.name}{': '}
                     </td>
                     <td>
-                      <select value={chosenSubclass || ''}
-                              onChange={e => setSubclass(_class, e.target.value)}
-                              style={{ fontStyle: chosenSubclass ? 'normal' : 'italic' }}
-                      >
-                        <option value='' disabled>{classInfo.subclassType}:</option>
-                        {Object.keys(subclasses).map(subclassKey => {
-                          const subclass = subclasses[subclassKey]
-                          return <option key={subclassKey} value={subclassKey}>{formatSubclassName(subclass)}</option>
-                        })}
-                      </select>
+                      <div className='ui form'>
+                        <div className='field'>
+                          <select value={chosenSubclass || ''}
+                                  onChange={e => setSubclass(_class, e.target.value)}
+                                  style={{ fontStyle: chosenSubclass ? 'normal' : 'italic' }}
+                          >
+                            <option value='' disabled>{classInfo.subclassType}:</option>
+                            {Object.keys(subclasses).map(subclassKey => {
+                              const subclass = subclasses[subclassKey]
+                              return <option key={subclassKey} value={subclassKey}>{formatSubclassName(subclass)}</option>
+                            })}
+                          </select>
+                        </div>
+                      </div>
                     </td>
                   </tr>
                 })}

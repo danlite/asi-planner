@@ -138,8 +138,10 @@ class LevelRow extends Component {
     return (
       <tr className={['LevelRow', collapsibleAnchorLevel ? 'collapsible' : ''].join(' ')}
           ref={this.handleRowRef}
-          onMouseOver={this.showTooltip}
-          onMouseOut={this.hideTooltip}>
+          onMouseOver={() => window.screen.width >= 768 && this.showTooltip()}
+          onMouseOut={() => window.screen.width >= 768 && this.hideTooltip()}
+          onTouchStart={() => window.screen.width < 768 && this.showTooltip()}
+          onTouchEnd={() => window.screen.width < 768 && this.hideTooltip()}>
         <td style={{ color: 'white', backgroundColor: `#${CLASSES[level.class].color}` }}>
           <span className='collapsible'>{level.characterLevel}</span>
           <span className='collapsed'>{collapsedLevelLabel}</span>
@@ -152,12 +154,14 @@ class LevelRow extends Component {
                         onChange={handleClassChange}
                         options={shorthandClassItems} />
             </DefaultViewport>
-            <MobileViewport>
-              <select value={level.class} onChange={handleClassChange}>
-                {Object.keys(CLASSES).map(c => <option key={c} value={c} disabled={!availableClasses.includes(c)}>
-                  {CLASSES[c].name}
-                </option>)}
-              </select>
+            <MobileViewport className='ui form'>
+              <div className='field'>
+                <select value={level.class} onChange={handleClassChange}>
+                  {Object.keys(CLASSES).map(c => <option key={c} value={c} disabled={!availableClasses.includes(c)}>
+                    {CLASSES[c].name}
+                  </option>)}
+                </select>
+              </div>
             </MobileViewport>
           </Fragment>}
         </td>
@@ -171,15 +175,17 @@ class LevelRow extends Component {
                         selectOnBlur={false}
               />
             </DefaultViewport>
-            <MobileViewport>
-              <select value={feature ? feature.id : ''}
-                      onChange={this.props.handleTypeChange}
-                      style={{ fontStyle: feature ? 'normal' : 'italic' }}>
-                <option value=''>Choose {selectLabelWords.join(' or ')}:</option>
-                {level.asi && <option value='asi'>ASI</option>}
-                {feature && feature.type === 'feat' && <option value={feature.id}>{feature.name}</option>}
-                {availableFeats.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-              </select>
+            <MobileViewport className='ui form'>
+              <div className='field'>
+                <select value={feature ? feature.id : ''}
+                        onChange={this.props.handleTypeChange}
+                        style={{ fontStyle: feature ? 'normal' : 'italic' }}>
+                  <option value=''>Choose {selectLabelWords.join(' or ')}:</option>
+                  {level.asi && <option value='asi'>ASI</option>}
+                  {feature && feature.type === 'feat' && <option value={feature.id}>{feature.name}</option>}
+                  {availableFeats.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                </select>
+              </div>
             </MobileViewport>
           </Fragment>:
           null

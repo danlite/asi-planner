@@ -43,7 +43,6 @@ class RaceRow extends Component {
 
     const shorthandRaceItems = GROUPED_RACES.reduce((accumulated, group) => {
         if (Array.isArray(group.races)) {
-            // accumulated.push()
             group.races.forEach(r => accumulated.push({ text: r.name, value: r.id }))
         } else {
             const race = group.races
@@ -63,24 +62,26 @@ class RaceRow extends Component {
                           selectOnBlur={false}
                           onChange={this.props.handleRaceChange} />
             </DefaultViewport>
-            <MobileViewport>
-                <select value={race ? race.id : ''}
-                                    onChange={this.props.handleRaceChange}
-                                    style={{ fontStyle: race ? 'normal' : 'italic' }}>
-                    <option value='' disabled>Choose race:</option>
-                    {GROUPED_RACES.map(group => {
-                        if (Array.isArray(group.races)) {
-                            return <optgroup label={group.familyName} key={group.familyName}>
-                                {group.races.map(r => <option value={r.id} key={r.id}>{r.name}</option>)}
-                            </optgroup>
-                        } else {
-                            const race = group.races
-                            return <option value={race.id} key={race.id}>
-                                {race.name}
-                            </option>
-                        }
-                    })}
-                </select>
+            <MobileViewport className='ui form'>
+                <div className='field'>
+                    <select value={race ? race.id : ''}
+                                        onChange={this.props.handleRaceChange}
+                                        style={{ fontStyle: race ? 'normal' : 'italic' }}>
+                        <option value='' disabled>Choose race:</option>
+                        {GROUPED_RACES.map(group => {
+                            if (Array.isArray(group.races)) {
+                                return <optgroup label={group.familyName} key={group.familyName}>
+                                    {group.races.map(r => <option value={r.id} key={r.id}>{r.name}</option>)}
+                                </optgroup>
+                            } else {
+                                const race = group.races
+                                return <option value={race.id} key={race.id}>
+                                    {race.name}
+                                </option>
+                            }
+                        })}
+                    </select>
+                </div>
             </MobileViewport>
         </td>
         <ASICells {...{ feature: race, availableAbilities, handleAbilityChange }} />
