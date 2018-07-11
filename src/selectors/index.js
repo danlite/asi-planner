@@ -3,7 +3,8 @@ import {
   ABILITIES, CLASSES, FEATS,
   STR, DEX, INT, WIS, CHA,
   MAX_LEVEL_COUNT,
-  asiLevelsForClass, featMeetsPrerequisite, formatSubclassName
+  asiLevelsForClass, featMeetsPrerequisite, formatSubclassName,
+  PREF_LEVEL_ONE_FEAT, PREF_FEATS_ALLOWED,
 } from '../constants'
 
 const TESTING = false
@@ -80,6 +81,7 @@ const classKeys = Object.keys(CLASSES)
 const allFeatsSelector = () => FEATS
 const allClassesSelector = () => classKeys
 
+const preferencesSelector = state => state.preferences
 const raceSelector = state => state.race
 const rolledAbilitiesSelector = state => state.rolledAbilities
 
@@ -96,10 +98,10 @@ const classProgressionSelectorFactory = new CharacterLevelSelectorFactory(
 )
 
 export const classLevelsSelectorFactory = new CharacterLevelSelectorFactory(
+  preferencesSelector,
   raceSelector,
   classProgressionSelectorFactory.evaluate,
-  (race, classProgression, lowerLevelClassLevels, characterLevel) => {
-    // console.log({characterLevel, lowerLevelClassLevels, race, classProgression})
+  (preferences, race, classProgression, lowerLevelClassLevels, characterLevel) => {
     const hasRacialFeat = !!(race && race.feat)
     const _class = classProgression[characterLevel]
     const previousClasses = lowerLevelClassLevels ? {...lowerLevelClassLevels[characterLevel - 1].classes} : {}
@@ -109,11 +111,22 @@ export const classLevelsSelectorFactory = new CharacterLevelSelectorFactory(
     if (_class)
       classes[_class] = levelInClass
 
+    let hasFeat = false
+    if (preferences[PREF_FEATS_ALLOWED]) {
+      if (asi) {
+        hasFeat = true
+      } else if (characterLevel === 1) {
+        if (hasRacialFeat || preferences[PREF_LEVEL_ONE_FEAT]) {
+          hasFeat = true
+        }
+      }
+    }
+
     return {
       ...lowerLevelClassLevels,
       [characterLevel]: {
         'characterLevel': characterLevel,
-        'feat': (hasRacialFeat && (characterLevel === 1)) || asi, // optional ASI rule
+        'feat': hasFeat,
         'asi': asi,
         'capabilities': {},
         'class': _class,
@@ -487,17 +500,24 @@ export const levelCapabilitiesSelectorFactory = new CharacterLevelSelectorFactor
 )
 
 export const validFeatsSelector = createSelector(
+  preferencesSelector,
   allFeatsSelector,
   levelAbilityScoresSelectorFactory.final,
   levelCapabilitiesSelectorFactory.final,
   startingAbilityScoresSelector,
   raceSelector,
   classLevelsSelectorFactory.final,
-  (allFeats, levelAbilityScores, levelCapabilities, startingAbilityScores, race, classLevels) => {
+  (preferences, allFeats, levelAbilityScores, levelCapabilities, startingAbilityScores, race, classLevels) => {
     const validFeats = {}
 
     sortByCharacterLevel(classLevels).forEach(level => {
       const { characterLevel } = level
+
+      if (!preferences[PREF_FEATS_ALLOWED]) {
+        validFeats[characterLevel] = []
+        return
+      }
+
       const firstLevel = characterLevel === 1
 
       const abilityScores = firstLevel ? startingAbilityScores : levelAbilityScores[characterLevel - 1]

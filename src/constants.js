@@ -14,6 +14,9 @@ export const ABILITIES = [
     CHA,
 ]
 
+export const PREF_LEVEL_ONE_FEAT = 'level_one_feat'
+export const PREF_FEATS_ALLOWED = 'feats_allowed'
+
 export function formatModifier(value) {
     if (value < 0)
         return `-${Math.abs(value)}`

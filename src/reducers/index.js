@@ -2,6 +2,7 @@
 import {
     STR, DEX, CON, INT, WIS, CHA,
     RACES, MAX_LEVEL_COUNT,
+    PREF_LEVEL_ONE_FEAT, PREF_FEATS_ALLOWED,
 } from '../constants'
 import {
     SET_ROLLED_ABILITY,
@@ -16,6 +17,7 @@ import {
     RESET_CHARACTER_CLASS,
     SET_CLASS_SUBCLASS,
     RESET_ALL,
+    SET_PREFERENCE,
 } from '../actions'
 import { classLevelsSelectorFactory } from '../selectors'
 
@@ -198,12 +200,31 @@ function subclasses(state = {}, action) {
     }
 }
 
+const INITIAL_PREFERENCES = {
+    [PREF_LEVEL_ONE_FEAT]: false,
+    [PREF_FEATS_ALLOWED]: true,
+}
+
+function preferences(state = INITIAL_PREFERENCES, action) {
+    switch (action.type) {
+        case SET_PREFERENCE:
+        return {
+            ...state,
+            [action.key]: action.value
+        }
+
+        default:
+        return state
+    }
+}
+
 function plannerApp(state = {}, action) {
     const newState = {
         rolledAbilities: rolledAbilities(state.rolledAbilities, action),
         race: race(state.race, action),
         classProgression: classProgression(state.classProgression, action),
         subclasses: subclasses(state.subclasses, action),
+        preferences: preferences(state.preferences, action),
     }
 
     // The `levelFeatures` reducer relies on accessing the state as returned

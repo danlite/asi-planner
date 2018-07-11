@@ -6,6 +6,7 @@ import LevelRow from './components/LevelRow.js'
 import RolledAbilitiesRow from './components/RolledAbilitiesRow.js'
 import RaceRow from './components/RaceRow.js'
 import ClassMenu from './components/ClassMenu'
+import Preferences from './components/Preferences'
 import { ABILITIES, CLASSES, MAX_LEVEL_COUNT, formatModifier, scoreModifier, formatSubclassName } from './constants'
 import { RESET_CHARACTER_CLASS, SET_CLASS_SUBCLASS, RESET_ALL } from './actions'
 import { classLevelsSelectorFactory, levelAbilityScoresSelectorFactory, isStartedSelector, isMulticlassing } from './selectors'
@@ -137,7 +138,9 @@ class App extends Component {
                 })}
               </tbody>
             </table>}
-            <br/><br/><br/><br/>
+            <br/><br/>
+            <Preferences />
+            <br/><br/>
             <Button negative onClick={resetAll}>Start over</Button>
           </div> :
           <ClassMenu onClassSelect={resetClass} />
