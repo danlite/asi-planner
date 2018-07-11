@@ -1046,7 +1046,7 @@ export const RACES = [
         asi: {
             [STR]: 1,
             [CON]: 1,
-            [WIS]: 1
+            [CHA]: 1
         }
     },
     {
