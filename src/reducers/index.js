@@ -140,6 +140,7 @@ function levelFeatures(state = {}, action, classLevels = {}) {
         case SET_RACE:
         case SET_CHARACTER_LEVEL_CLASS:
         case RESET_CHARACTER_CLASS:
+        case SET_PREFERENCE: // in the case of setting PREF_LEVEL_ONE_FEAT to false
         state = { ...state }
         Object.values(classLevels).forEach(level => {
             const { characterLevel } = level
